@@ -596,10 +596,13 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Segmented view controls */}
+      {/* Section Header */}
       <div className="section-head">
-        <h2>Deliverables & Roadmap</h2>
-        <nav className="tabs-segmented" aria-label="Planner views">
+        <div>
+          <p className="eyebrow">DELIVERABLES</p>
+          <h2>{tab === 'today' ? "Today's Tasks" : tab === 'tomorrow' ? "Tomorrow's Tasks" : tab === 'week' ? "This Week's Sprint" : '12-Week Roadmap'}</h2>
+        </div>
+        <nav className="tabs-segmented desktop-only" aria-label="Planner views">
           {(['today', 'tomorrow', 'week', 'all'] as Tab[]).map((item) => (
             <button key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>
               {item === 'today' ? 'Today' : item === 'tomorrow' ? 'Tomorrow' : item === 'week' ? 'Week' : 'All 12W'}
@@ -629,7 +632,7 @@ export default function Dashboard() {
                   <div>
                     <p className="eyebrow">WEEK {week}</p>
                     <h2>{days[0].phase}</h2>
-                    <p>{formatDate(days[0].date)} — {formatDate(days[days.length - 1].date)}</p>
+                    <p>{formatDate(days[0].date)} to {formatDate(days[days.length - 1].date)}</p>
                   </div>
                   <strong>{percent}%</strong>
                 </div>
@@ -717,7 +720,7 @@ export default function Dashboard() {
 
       <footer>
         <span>{isSupabaseConfigured ? 'Supabase mode: private account + realtime updates' : 'Local mode: progress stays in this browser'}</span>
-        <span>Plan: 18 Sep — 10 Dec 2026</span>
+        <span>Plan: 18 Sep to 10 Dec 2026</span>
       </footer>
     </main>
   );
@@ -763,7 +766,7 @@ function DayCard({
             <label className={`check-row ${checked ? 'checked' : ''}`} key={`${day.date}-${index}`}>
               <input type="checkbox" checked={checked} onChange={() => onToggle(day, index)} />
               <span className="fake-check">{checked ? '✓' : ''}</span>
-              <span>{item}</span>
+              <span className="check-text">{item}</span>
             </label>
           );
         })}
