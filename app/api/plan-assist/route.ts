@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
+import dns from 'node:dns';
 
 export const runtime = 'nodejs';
+
+// Ensure fast IPv4 resolution on Windows networks
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
 
 type PlanAssistRequest = {
   type: 'drift' | 'blocker' | 'daily-brief' | 'weekly-retro';
@@ -61,12 +67,16 @@ Keep it concise and high-impact.
 `,
 };
 
-// Candidate Gemini models to try in order of preference
+// Candidate Gemini models to try in order of preference (verified from ListModels)
 const GEMINI_MODELS = [
+  'gemini-flash-lite-latest',
+  'gemini-flash-latest',
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+  'gemini-2.5-flash-lite',
   'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-2.0-flash-lite',
 ];
 
 async function callGemini(apiKey: string, prompt: string) {
@@ -101,11 +111,11 @@ async function callGemini(apiKey: string, prompt: string) {
       } else {
         const errText = await response.text();
         lastError = `[${model}] ${response.status}: ${errText}`;
-        // If 404 (model not found on this API version), loop to next model
-        if (response.status === 404) {
+        // If 404, 503, or 429, try the next available model
+        if (response.status === 404 || response.status === 503 || response.status === 429) {
           continue;
         }
-        // If quota or unauthorized, don't keep repeating invalid key
+        // If unauthorized or permission denied, don't repeat invalid key
         if (response.status === 400 || response.status === 401 || response.status === 403) {
           throw new Error(errText);
         }
