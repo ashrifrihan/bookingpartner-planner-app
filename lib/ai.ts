@@ -98,3 +98,68 @@ export function formatWhatsAppReport({
 
   return lines.join('\n');
 }
+
+/**
+ * Format Morning Plan Report (8:00 AM reminder)
+ */
+export function formatMorningPlanReport({
+  dateFormatted,
+  taskCount,
+  yesterdayCompleted,
+  blockersCount,
+  focusTitle,
+  todayItems,
+}: {
+  dateFormatted: string;
+  taskCount: number;
+  yesterdayCompleted: number;
+  blockersCount: number;
+  focusTitle: string;
+  todayItems?: string[];
+}): string {
+  const lines: string[] = [
+    '🔔 *BookingPartner: Today’s Plan*',
+    '',
+    `📅 ${dateFormatted}`,
+    `🎯 ${taskCount} tasks planned today`,
+    `✅ ${yesterdayCompleted} completed yesterday`,
+    `⚠️ ${blockersCount} active blocker${blockersCount === 1 ? '' : 's'}`,
+    '',
+    `*Today's focus:* ${focusTitle}`,
+  ];
+
+  if (todayItems && todayItems.length > 0) {
+    lines.push('');
+    lines.push('*Scheduled deliverables:*');
+    todayItems.forEach((item) => {
+      lines.push(`• ${item}`);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Format Overdue Alert Report
+ */
+export function formatOverdueAlertReport({
+  overdueTasks,
+  aiSuggestion,
+}: {
+  overdueTasks: { title: string; daysOverdue: number }[];
+  aiSuggestion?: string;
+}): string {
+  const lines: string[] = ['⚠️ *Planner Alert: Overdue Tasks*', ''];
+
+  overdueTasks.forEach((t) => {
+    lines.push(`🔴 *${t.title}* (${t.daysOverdue} day${t.daysOverdue === 1 ? '' : 's'} overdue)`);
+  });
+
+  if (aiSuggestion && aiSuggestion.trim()) {
+    lines.push('');
+    lines.push('🤖 *Suggested next step:*');
+    lines.push(aiSuggestion.trim());
+  }
+
+  return lines.join('\n');
+}

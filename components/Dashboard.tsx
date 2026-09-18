@@ -235,8 +235,28 @@ function DashboardContent() {
   }, [today, states]);
 
   const yesterdayDate = useMemo(() => addDays(today, -1), [today]);
+  const yesterdayPlan = useMemo(() => plan.find((d) => d.date === yesterdayDate), [yesterdayDate]);
   const yesterdayNote = notes[yesterdayDate] || '';
   const yesterdayBlocked = blocked[yesterdayDate] || '';
+
+  const yesterdayCompletedCount = useMemo(() => {
+    if (!yesterdayPlan) return 0;
+    return yesterdayPlan.items.filter((_, idx) => states[itemKey(yesterdayDate, idx)]).length;
+  }, [yesterdayPlan, yesterdayDate, states]);
+
+  const overdueTasksList = useMemo(() => {
+    return plan
+      .filter((d) => d.date < today)
+      .flatMap((d) => {
+        const uncompleted = d.items
+          .map((item, idx) => ({ item, done: Boolean(states[itemKey(d.date, idx)]) }))
+          .filter((x) => !x.done);
+        if (!uncompleted.length) return [];
+        const diffMs = new Date(`${today}T12:00:00`).getTime() - new Date(`${d.date}T12:00:00`).getTime();
+        const daysOverdue = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+        return uncompleted.map((x) => ({ title: `${d.title}: ${x.item}`, daysOverdue }));
+      });
+  }, [today, states]);
 
   const completedTodayCount = useMemo(() => {
     if (!todayPlan) return 0;
@@ -589,6 +609,8 @@ function DashboardContent() {
             : [],
           blockersText: blocked[today] || '',
           tomorrowTitle: tomorrowPlan?.title,
+          yesterdayCompletedCount,
+          overdueTasksList,
         }}
       />
 

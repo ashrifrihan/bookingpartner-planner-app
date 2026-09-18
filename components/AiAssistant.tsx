@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { requestPlanAssist, formatWhatsAppReport, type AiResponse } from '@/lib/ai';
+import { useState, useEffect } from 'react';
+import {
+  requestPlanAssist,
+  formatWhatsAppReport,
+  formatMorningPlanReport,
+  formatOverdueAlertReport,
+  type AiResponse,
+} from '@/lib/ai';
 
 export function DailyBriefCard({
   todayDate,
@@ -195,19 +201,101 @@ export function WhatsAppModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  reportData: Parameters<typeof formatWhatsAppReport>[0];
+  reportData: Parameters<typeof formatWhatsAppReport>[0] & {
+    yesterdayCompletedCount?: number;
+    overdueTasksList?: { title: string; daysOverdue: number }[];
+  };
 }) {
   const [copied, setCopied] = useState<boolean>(false);
+  const [reportType, setReportType] = useState<'evening' | 'morning' | 'alert'>('evening');
+  const [phone, setPhone] = useState<string>('');
+  const [savedBadge, setSavedBadge] = useState<boolean>(false);
+  const [sendingApi, setSendingApi] = useState<boolean>(false);
+  const [apiNotice, setApiNotice] = useState<{ text: string; error?: boolean } | null>(null);
+  const [showSchedulerInfo, setShowSchedulerInfo] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('bp-whatsapp-target-phone') || '';
+      setPhone(saved);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const messageText = formatWhatsAppReport(reportData);
-  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
+  const handlePhoneChange = (val: string) => {
+    setPhone(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bp-whatsapp-target-phone', val);
+      setSavedBadge(true);
+      setTimeout(() => setSavedBadge(false), 2000);
+    }
+  };
+
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+
+  let messageText = '';
+  if (reportType === 'morning') {
+    messageText = formatMorningPlanReport({
+      dateFormatted: reportData.dateFormatted,
+      taskCount: reportData.todayItems.length,
+      yesterdayCompleted: reportData.yesterdayCompletedCount ?? 0,
+      blockersCount: reportData.blockersText ? 1 : 0,
+      focusTitle: reportData.todayTitle,
+      todayItems: reportData.todayItems.map((i) => i.text),
+    });
+  } else if (reportType === 'alert') {
+    messageText = formatOverdueAlertReport({
+      overdueTasks:
+        reportData.overdueTasksList && reportData.overdueTasksList.length > 0
+          ? reportData.overdueTasksList
+          : [{ title: reportData.todayTitle, daysOverdue: 1 }],
+      aiSuggestion: reportData.aiSummaryText,
+    });
+  } else {
+    messageText = formatWhatsAppReport(reportData);
+  }
+
+  const whatsappUrl = cleanPhone
+    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(messageText)}`
+    : `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(messageText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSendViaApi = async () => {
+    if (!cleanPhone) {
+      setApiNotice({ text: 'Please enter a target phone number first.', error: true });
+      return;
+    }
+    setSendingApi(true);
+    setApiNotice(null);
+
+    try {
+      const res = await fetch('/api/whatsapp-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: cleanPhone, message: messageText }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setApiNotice({
+          text: `✓ Message dispatched automatically via ${data.provider} to +${cleanPhone}!`,
+          error: false,
+        });
+      } else {
+        setApiNotice({
+          text: data.hint || data.error || 'Automated dispatch not configured yet.',
+          error: true,
+        });
+      }
+    } catch (e: any) {
+      setApiNotice({ text: e.message || 'Failed to trigger WhatsApp API route.', error: true });
+    }
+    setSendingApi(false);
   };
 
   return (
@@ -216,7 +304,7 @@ export function WhatsAppModal({
         <div className="modal-head">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <WhatsAppIcon />
-            <h3 style={{ margin: 0 }}>Share Daily Progress to WhatsApp</h3>
+            <h3 style={{ margin: 0 }}>WhatsApp Project Dispatcher</h3>
           </div>
           <button type="button" className="modal-close-btn" onClick={onClose}>
             ×
@@ -224,16 +312,78 @@ export function WhatsAppModal({
         </div>
 
         <p className="muted" style={{ margin: '4px 0 14px', fontSize: '13px' }}>
-          Formatted for WhatsApp chats and project groups.
+          Format and dispatch daily progress, morning briefs, or overdue alerts to your target number.
         </p>
 
+        {/* Target Phone Number Input with LocalStorage persistence */}
+        <div className="whatsapp-phone-box">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <label htmlFor="target-phone-input" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink-secondary)' }}>
+              Target WhatsApp Number:
+            </label>
+            {savedBadge && <span className="saved-badge">✓ Saved to App</span>}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              id="target-phone-input"
+              type="tel"
+              className="whatsapp-phone-input"
+              placeholder="e.g. +94771234567 or +15551234567"
+              value={phone}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+            />
+            {cleanPhone && (
+              <span style={{ fontSize: '11px', color: 'var(--green-emerald)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                +{cleanPhone}
+              </span>
+            )}
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--ink-muted)', marginTop: '4px', display: 'block' }}>
+            Include country code without spaces or dashes. Saved automatically in this browser.
+          </span>
+        </div>
+
+        {/* Report Type Selector Pills */}
+        <div className="whatsapp-type-tabs">
+          <button
+            type="button"
+            className={`whatsapp-tab-pill ${reportType === 'evening' ? 'active' : ''}`}
+            onClick={() => setReportType('evening')}
+          >
+            📊 Evening Progress (8 PM)
+          </button>
+          <button
+            type="button"
+            className={`whatsapp-tab-pill ${reportType === 'morning' ? 'active' : ''}`}
+            onClick={() => setReportType('morning')}
+          >
+            ☀️ Morning Plan (8 AM)
+          </button>
+          <button
+            type="button"
+            className={`whatsapp-tab-pill ${reportType === 'alert' ? 'active' : ''}`}
+            onClick={() => setReportType('alert')}
+          >
+            ⚠️ Overdue Alert
+          </button>
+        </div>
+
+        {/* Message Preview Textarea */}
         <textarea
           readOnly
           value={messageText}
           className="whatsapp-preview-area"
-          rows={12}
+          rows={10}
         />
 
+        {/* Action Status Notice */}
+        {apiNotice && (
+          <div className={`ai-notice-box ${apiNotice.error ? 'error' : 'success'}`}>
+            <span>{apiNotice.text}</span>
+          </div>
+        )}
+
+        {/* Primary Action Buttons */}
         <div className="modal-actions-row">
           <button
             type="button"
@@ -241,7 +391,19 @@ export function WhatsAppModal({
             onClick={handleCopy}
             style={{ flex: 1, justifyContent: 'center' }}
           >
-            {copied ? '✓ Copied to Clipboard' : 'Copy Message'}
+            {copied ? '✓ Copied' : 'Copy Text'}
+          </button>
+
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={handleSendViaApi}
+            disabled={sendingApi}
+            style={{ flex: 1, justifyContent: 'center' }}
+            title="Send in background via Twilio or Meta Cloud API"
+          >
+            {sendingApi ? <LoadingSpinner /> : <SparkleIcon />}
+            <span>{sendingApi ? 'Sending…' : 'Send via API'}</span>
           </button>
 
           <a
@@ -250,7 +412,7 @@ export function WhatsAppModal({
             rel="noopener noreferrer"
             className="primary-button"
             style={{
-              flex: 1,
+              flex: 1.3,
               marginTop: 0,
               display: 'inline-flex',
               alignItems: 'center',
@@ -265,6 +427,35 @@ export function WhatsAppModal({
             <WhatsAppIcon />
             <span>Open WhatsApp</span>
           </a>
+        </div>
+
+        {/* Scheduled Automation Info Accordion */}
+        <div style={{ marginTop: '16px', borderTop: '1px solid var(--line-subtle)', paddingTop: '12px' }}>
+          <button
+            type="button"
+            className="ai-text-btn"
+            style={{ padding: 0, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+            onClick={() => setShowSchedulerInfo(!showSchedulerInfo)}
+          >
+            <span>{showSchedulerInfo ? '▼' : '►'} Automatic Daily Scheduler Setup (Laptop OFF)</span>
+          </button>
+
+          {showSchedulerInfo && (
+            <div style={{ marginTop: '8px', fontSize: '12px', lineHeight: 1.5, color: 'var(--ink-secondary)', background: 'var(--surface-sunken)', padding: '10px 12px', borderRadius: '8px' }}>
+              <p style={{ margin: '0 0 6px' }}>
+                To trigger automatic daily messages while your laptop is turned off, ping your cron endpoint from Vercel Cron or cron-job.org:
+              </p>
+              <code style={{ fontSize: '11px', display: 'block', wordBreak: 'break-all', padding: '6px', background: 'var(--surface-elevated)', borderRadius: '4px', margin: '4px 0' }}>
+                GET /api/cron/daily-report?mode=morning&phone={cleanPhone || 'YOUR_PHONE'}
+              </code>
+              <code style={{ fontSize: '11px', display: 'block', wordBreak: 'break-all', padding: '6px', background: 'var(--surface-elevated)', borderRadius: '4px', margin: '4px 0' }}>
+                GET /api/cron/daily-report?mode=evening&phone={cleanPhone || 'YOUR_PHONE'}
+              </code>
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--ink-muted)' }}>
+                Set schedules for <strong>8:00 AM</strong> and <strong>8:00 PM</strong> in your hosting provider settings.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
