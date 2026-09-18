@@ -4,6 +4,8 @@ import type { CSSProperties } from 'react';
 import type { PlanDay } from '@/lib/plan';
 import type { ItemStates, TextMap } from '@/lib/storage';
 
+import { BlockerSuggestionWidget } from './AiAssistant';
+
 function formatDate(dateString: string) {
   const value = new Date(`${dateString}T12:00:00`);
   return new Intl.DateTimeFormat('en-US', {
@@ -82,14 +84,21 @@ export function DayCard({
                 placeholder="What did you finish?"
               />
             </label>
-            <label>
-              Blocked by
-              <textarea
-                value={blocked[day.date] || ''}
-                onChange={(e) => onSaveText(day.date, 'blocked', e.target.value)}
-                placeholder="Anything stopping you?"
+            <div>
+              <label>
+                Blocked by
+                <textarea
+                  value={blocked[day.date] || ''}
+                  onChange={(e) => onSaveText(day.date, 'blocked', e.target.value)}
+                  placeholder="Anything stopping you?"
+                />
+              </label>
+              <BlockerSuggestionWidget
+                taskTitle={day.title}
+                blockerText={blocked[day.date] || ''}
+                doneWhen={day.doneWhen}
               />
-            </label>
+            </div>
           </div>
         </div>
       )}

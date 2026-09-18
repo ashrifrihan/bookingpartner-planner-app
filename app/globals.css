@@ -1518,3 +1518,360 @@ footer {
     padding-bottom: 30px;
   }
 }
+
+/* ==========================================================================
+   AI ASSISTANT & MODAL STYLING (Gemini Integration)
+   ========================================================================== */
+
+/* Daily AI Brief Card */
+.ai-card {
+  background: var(--surface-elevated);
+  border: 1px solid var(--line-subtle);
+  border-left: 3px solid var(--purple-brand);
+  border-radius: var(--radius-card);
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ai-card:hover {
+  border-color: rgba(110, 72, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(110, 72, 255, 0.08);
+}
+
+.ai-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ai-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--purple-brand);
+}
+
+.ai-card-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ai-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-text-btn {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.ai-text-btn:hover {
+  color: var(--ink-primary);
+}
+
+.ai-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  color: var(--ink-primary);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-pill-btn:hover:not(:disabled) {
+  background: var(--surface-card);
+  border-color: var(--purple-brand);
+  color: var(--purple-brand);
+}
+
+.ai-pill-btn.brand {
+  background: rgba(110, 72, 255, 0.12);
+  border-color: rgba(110, 72, 255, 0.35);
+  color: var(--purple-brand);
+}
+
+.ai-pill-btn.brand:hover:not(:disabled) {
+  background: var(--purple-brand);
+  color: #ffffff;
+}
+
+.ai-pill-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-content-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+}
+
+.ai-content-body p {
+  margin: 0 0 10px;
+}
+
+.ai-content-body p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-card-placeholder {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.ai-error-notice {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--red-rose);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Inline Blocker Advisor */
+.ai-inline-suggestion {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+}
+
+.ai-inline-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.ai-inline-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  color: var(--purple-brand);
+  letter-spacing: 0.04em;
+}
+
+.ai-close-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.ai-close-btn:hover {
+  color: var(--ink-primary);
+}
+
+.ai-inline-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-secondary);
+}
+
+.ai-suggestion-text {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
+}
+
+/* Sprint Summary / Weekly Retro Strip */
+.week-retro-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-card);
+  background: var(--surface-elevated);
+  border: 1px solid var(--line-subtle);
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.week-retro-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.modal-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 540px;
+  padding: 22px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.modal-close-btn:hover {
+  color: var(--ink-primary);
+}
+
+.whatsapp-preview-area {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.45;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--surface-sunken);
+  color: var(--ink-primary);
+  border: 1px solid var(--line-subtle);
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+.modal-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Drift Detector Stats */
+.drift-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.drift-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  border-radius: 10px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  text-align: center;
+}
+
+.drift-stat-card.danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.drift-stat-card.success {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.drift-stat-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink-primary);
+}
+
+.drift-stat-card.danger .drift-stat-num {
+  color: var(--red-rose);
+}
+
+.drift-stat-card.success .drift-stat-num {
+  color: var(--green-emerald);
+}
+
+.drift-stat-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+.skipped-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.skipped-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  color: var(--ink-secondary);
+}
+
+.skipped-tag.muted {
+  color: var(--ink-muted);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+

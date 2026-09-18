@@ -12,6 +12,14 @@ import { KpiSection } from './KpiSection';
 import { DayCard } from './DayCard';
 import { NavigationDock } from './NavigationDock';
 import { ErrorBoundary } from './ErrorBoundary';
+import {
+  DailyBriefCard,
+  DriftDetectorModal,
+  WeeklyRetroModal,
+  WhatsAppModal,
+  SparkleIcon,
+  WhatsAppIcon,
+} from './AiAssistant';
 
 type Tab = 'today' | 'tomorrow' | 'week' | 'all' | 'overdue';
 
@@ -52,6 +60,10 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const [tab, setTab] = useState<Tab>('today');
+  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [driftModalOpen, setDriftModalOpen] = useState(false);
+  const [retroModalOpen, setRetroModalOpen] = useState(false);
+
   const today = localDateString();
   const tomorrow = addDays(today, 1);
   const todayPlan = plan.find((day) => day.date === today);
@@ -195,6 +207,62 @@ function DashboardContent() {
     return plan;
   }, [tab, today, tomorrow, todayPlan, states]);
 
+  // 7. Drift Detector Stats (Expected vs Completed by date)
+  const driftStats = useMemo(() => {
+    const elapsedDays = plan.filter((d) => d.date <= today);
+    const expected = elapsedDays.reduce((acc, d) => acc + d.items.length, 0);
+    const completed = elapsedDays.reduce((acc, d) => {
+      return acc + d.items.filter((_, idx) => states[itemKey(d.date, idx)]).length;
+    }, 0);
+    const completionRate = expected > 0 ? Math.round((completed / expected) * 100) : 100;
+    return {
+      expected,
+      completed,
+      completionRate,
+      overdue: overdueCount,
+    };
+  }, [today, states, overdueCount]);
+
+  const skippedTasks = useMemo(() => {
+    return plan
+      .filter((d) => d.date <= today)
+      .flatMap((d) =>
+        d.items
+          .map((item, idx) => ({ item, done: Boolean(states[itemKey(d.date, idx)]) }))
+          .filter((x) => !x.done)
+          .map((x) => x.item)
+      );
+  }, [today, states]);
+
+  const yesterdayDate = useMemo(() => addDays(today, -1), [today]);
+  const yesterdayNote = notes[yesterdayDate] || '';
+  const yesterdayBlocked = blocked[yesterdayDate] || '';
+
+  const completedTodayCount = useMemo(() => {
+    if (!todayPlan) return 0;
+    return todayPlan.items.filter((_, idx) => states[itemKey(today, idx)]).length;
+  }, [todayPlan, today, states]);
+
+  const remainingTodayCount = todayPlan ? todayPlan.items.length - completedTodayCount : 0;
+  const tomorrowPlan = useMemo(() => plan.find((d) => d.date === tomorrow), [tomorrow]);
+
+  // Week Retro data
+  const weekNotes = useMemo(() => {
+    return activeWeekDays.map((d) => notes[d.date] || '');
+  }, [activeWeekDays, notes]);
+
+  const weekCompletedTasks = useMemo(() => {
+    return activeWeekDays.flatMap((d) =>
+      d.items.filter((_, idx) => states[itemKey(d.date, idx)])
+    );
+  }, [activeWeekDays, states]);
+
+  const weekPendingTasks = useMemo(() => {
+    return activeWeekDays.flatMap((d) =>
+      d.items.filter((_, idx) => !states[itemKey(d.date, idx)])
+    );
+  }, [activeWeekDays, states]);
+
   // Handlers for toggling items & notes
   const toggleItem = useCallback(
     (day: PlanDay, index: number) => {
@@ -270,6 +338,24 @@ function DashboardContent() {
           <p>Manage and track all 84 engineering tasks in one place.</p>
         </div>
         <div className="page-actions-right">
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => setDriftModalOpen(true)}
+            title="Analyze schedule drift and launch risk using Gemini"
+          >
+            <SparkleIcon />
+            <span>Schedule Risk</span>
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => setWhatsAppModalOpen(true)}
+            title="Format and share daily project status to WhatsApp"
+          >
+            <WhatsAppIcon />
+            <span>WhatsApp Update</span>
+          </button>
           <a
             className="secondary-button"
             href="/BookingPartner_Backend_12_Week_Plan.pdf"
@@ -366,6 +452,35 @@ function DashboardContent() {
 
       {/* Main Task Feed */}
       <section className="content">
+        {tab === 'today' && todayPlan && (
+          <DailyBriefCard
+            todayDate={today}
+            todayTitle={todayPlan.title}
+            todayItems={todayPlan.items}
+            yesterdayNote={yesterdayNote}
+            yesterdayBlocked={yesterdayBlocked}
+          />
+        )}
+
+        {tab === 'week' && (
+          <div className="week-retro-strip">
+            <div className="week-retro-info">
+              <span className="eyebrow">Sprint Summary</span>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--ink-secondary)' }}>
+                Review Week {activeWeekNumber} ({activeWeekDays[0]?.phase || 'Foundation'}) achievements and recurring blockers with Gemini AI.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="ai-pill-btn brand"
+              onClick={() => setRetroModalOpen(true)}
+            >
+              <SparkleIcon />
+              <span>Weekly Retro</span>
+            </button>
+          </div>
+        )}
+
         {visibleDays.length === 0 ? (
           <div className="empty-card">
             <h2>{tab === 'overdue' ? 'No overdue tasks!' : 'No scheduled task for this date'}</h2>
@@ -447,6 +562,45 @@ function DashboardContent() {
 
       {/* Floating Bottom Capsule Navigation Dock for Mobile */}
       <NavigationDock tab={tab} setTab={setTab} theme={theme} toggleTheme={toggleTheme} />
+
+      {/* AI & Sharing Modals */}
+      <DriftDetectorModal
+        isOpen={driftModalOpen}
+        onClose={() => setDriftModalOpen(false)}
+        stats={driftStats}
+        skippedTasks={skippedTasks}
+      />
+
+      <WhatsAppModal
+        isOpen={whatsAppModalOpen}
+        onClose={() => setWhatsAppModalOpen(false)}
+        reportData={{
+          dateFormatted: formatDate(today, true),
+          overallPercent,
+          completedToday: completedTodayCount,
+          remainingToday: remainingTodayCount,
+          overdueCount,
+          todayTitle: todayPlan?.title || 'No scheduled tasks',
+          todayItems: todayPlan
+            ? todayPlan.items.map((it, idx) => ({
+                text: it,
+                done: Boolean(states[itemKey(today, idx)]),
+              }))
+            : [],
+          blockersText: blocked[today] || '',
+          tomorrowTitle: tomorrowPlan?.title,
+        }}
+      />
+
+      <WeeklyRetroModal
+        isOpen={retroModalOpen}
+        onClose={() => setRetroModalOpen(false)}
+        weekNumber={activeWeekNumber}
+        weekPhase={activeWeekDays[0]?.phase || 'Foundation'}
+        notes={weekNotes}
+        completedTasks={weekCompletedTasks}
+        pendingTasks={weekPendingTasks}
+      />
 
       <footer>
         <span>
