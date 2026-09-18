@@ -1,0 +1,38 @@
+BOOKINGPARTNER PLANNER — SIMPLE START
+=====================================
+
+OPTION A — TRY IT FIRST (NO SUPABASE)
+
+1. Open this folder in VS Code.
+2. Open Terminal.
+3. Type: npm install
+4. Type: npm run dev
+5. Open: http://localhost:3000
+6. The planner works immediately in Local Demo mode.
+7. Your checkboxes and notes stay in that browser.
+
+OPTION B — TURN ON LIVE SYNC WITH SUPABASE
+
+1. Create your own Supabase project.
+2. In Supabase, open SQL Editor.
+3. Open this file: supabase/schema.sql
+4. Copy all of it into Supabase SQL Editor and run it once.
+5. Copy .env.local.example and rename the copy to .env.local
+6. Put your own Supabase Project URL and browser-safe anon/publishable key inside .env.local
+7. Stop and restart: npm run dev
+8. Create your login in the planner.
+9. Open the same account on two devices and tick a task.
+10. The other device should update through Supabase Realtime.
+
+IMPORTANT
+---------
+Use only the browser-safe Supabase anon/publishable key in this website.
+NEVER put the Supabase service_role/secret key in browser code.
+
+INSTALL IT LIKE AN APP
+----------------------
+On the website press "Install app".
+If your browser does not show an install popup, use its menu and choose
+"Install app" or "Add to Home Screen".
+
+The full schedule PDF is also inside public/ and linked from the website.
