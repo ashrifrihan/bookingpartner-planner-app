@@ -90,22 +90,22 @@ export function TopBar({
       <div className="top-actions">
         <button
           type="button"
-          className="top-quick-btn eod"
+          className="top-quick-btn eod desktop-only"
           onClick={onOpenEndOfDay}
           title="Daily Check: Wrap up and store incomplete task reasons"
         >
           <ClockCheckIcon />
-          <span className="hide-mobile-sm">End Day</span>
+          <span>End Day</span>
         </button>
 
         <button
           type="button"
-          className="top-quick-btn wa"
+          className="top-quick-btn wa desktop-only"
           onClick={onOpenWhatsApp}
           title="Generate WhatsApp/Slack Daily Standup"
         >
           <SendIcon />
-          <span className="hide-mobile-sm">Report</span>
+          <span>Report</span>
         </button>
         <span
           className={`status-pill ${online ? 'online' : 'offline'}`}
@@ -117,7 +117,7 @@ export function TopBar({
 
         <button
           type="button"
-          className="icon-pill-btn"
+          className="icon-pill-btn desktop-only"
           onClick={toggleTheme}
           aria-label="Toggle theme"
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -128,7 +128,7 @@ export function TopBar({
         {user && onSignOut && (
           <button
             type="button"
-            className="icon-pill-btn"
+            className="icon-pill-btn signout-btn"
             onClick={onSignOut}
             title="Sign out"
             aria-label="Sign out"
