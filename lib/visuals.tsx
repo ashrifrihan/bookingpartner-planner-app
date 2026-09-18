@@ -14,24 +14,24 @@ export function getPhaseMeta(week: number): PhaseMeta {
       return {
         icon: <DatabaseIcon />,
         label: 'Setup & Foundation',
-        color: '#8B5CF6',
-        badgeBg: 'rgba(139, 92, 246, 0.12)',
+        color: '#2563EB',
+        badgeBg: 'rgba(37, 99, 235, 0.12)',
         tag: 'INFRA',
       };
     case 2:
       return {
         icon: <ShieldIcon />,
         label: 'Auth & Multi-Tenancy',
-        color: '#3B82F6',
-        badgeBg: 'rgba(59, 130, 246, 0.12)',
+        color: '#0284C7',
+        badgeBg: 'rgba(2, 132, 199, 0.12)',
         tag: 'SECURITY',
       };
     case 3:
       return {
         icon: <GridIcon />,
         label: 'Bus & Seat Inventory',
-        color: '#06B6D4',
-        badgeBg: 'rgba(6, 182, 212, 0.12)',
+        color: '#0D9488',
+        badgeBg: 'rgba(13, 148, 136, 0.12)',
         tag: 'INVENTORY',
       };
     case 4:
@@ -54,8 +54,8 @@ export function getPhaseMeta(week: number): PhaseMeta {
       return {
         icon: <QrCodeIcon />,
         label: 'Ticket Issuing & QR',
-        color: '#EC4899',
-        badgeBg: 'rgba(236, 72, 153, 0.12)',
+        color: '#E11D48',
+        badgeBg: 'rgba(225, 29, 72, 0.12)',
         tag: 'DISPATCH',
       };
     case 7:
@@ -70,8 +70,8 @@ export function getPhaseMeta(week: number): PhaseMeta {
       return {
         icon: <SearchIcon />,
         label: 'Search & Redis Caching',
-        color: '#6366F1',
-        badgeBg: 'rgba(99, 102, 241, 0.12)',
+        color: '#3B82F6',
+        badgeBg: 'rgba(59, 130, 246, 0.12)',
         tag: 'SEARCH',
       };
     case 9:
@@ -302,5 +302,26 @@ export function CheckCircleIcon() {
     </svg>
   );
 }
+
+export function ArrowRightIcon({ size = 13, className }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
+
 
 

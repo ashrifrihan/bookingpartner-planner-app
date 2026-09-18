@@ -2,7 +2,18 @@
  * AI Assistant Client-side API caller & cache manager
  */
 
-export type AiAssistType = 'drift' | 'blocker' | 'daily-brief' | 'weekly-retro';
+export type AiAssistType =
+  | 'explain-task'
+  | 'what-did-i-miss'
+  | 'make-today-plan'
+  | 'check-progress'
+  | 'replan'
+  | 'solve-blocker'
+  | 'morning-catchup'
+  | 'drift'
+  | 'blocker'
+  | 'daily-brief'
+  | 'weekly-retro';
 
 export type AiResponse = {
   success?: boolean;
@@ -11,6 +22,7 @@ export type AiResponse = {
   configured?: boolean;
   hint?: string;
   model?: string;
+  isFallback?: boolean;
 };
 
 export async function requestPlanAssist(

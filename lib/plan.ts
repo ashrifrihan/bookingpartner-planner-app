@@ -1300,3 +1300,199 @@ export function createPlan(startDate: string = DEFAULT_PLAN_START): PlanDay[] {
 export const plan: PlanDay[] = createPlan(DEFAULT_PLAN_START);
 export const PLAN_START: string = plan[0]?.date || DEFAULT_PLAN_START;
 export const PLAN_END: string = plan[plan.length - 1]?.date || DEFAULT_PLAN_START;
+
+export type TaskDetail = {
+  dayDate: string;
+  dayTitle: string;
+  itemTitle: string;
+  itemIndex: number;
+  phase: string;
+  what: string;
+  why: string;
+  how: string[];
+  doneWhen: string;
+  dependencies: string;
+  nextAction: string;
+};
+
+const PHASE_WHY_MAP: Record<string, string> = {
+  'Setup & Foundation': 'Foundational infrastructure required before building auth, bus models, and payment flows.',
+  'Authentication & Users': 'Required before owner and customer endpoints can be authorized and scoped.',
+  'Cities, Routes & Buses': 'Required for route search and schedule seat inventory creation.',
+  'Schedules': 'Prerequisite for atomic seat locking and booking reservations.',
+  'Seat Locking & Realtime': 'Critical for preventing concurrent double-bookings before payment flow is connected.',
+  'Payments & Bookings': 'Core revenue transaction engine; connects seat allocation to PayHere and wallet ledger.',
+  'Owner Operations': 'Required for bus operator self-service management, fleet allocation, and payout accounting.',
+  'Admin APIs': 'Required for platform governance, owner verification, and audit security.',
+  'Mobile API Polish': 'Ensures high-speed, reliable payloads and push notifications for mobile apps.',
+  'Production Deployment': 'Hardens platform with environment secrets, SSL, CDN caching, and database backup.',
+  'Security & Load Testing': 'Validates system under high concurrent ticket rush traffic and enforces OWASP defenses.',
+  'Pilot & Soft Launch': 'Final rollout with real fleet operators and monitoring before full public release.',
+};
+
+export function getTaskDetail(day: PlanDay, itemIndex: number = 0): TaskDetail {
+  const itemTitle = day.items[itemIndex] || day.title;
+  const why = PHASE_WHY_MAP[day.phase] || 'Critical milestone for project completion and architectural integrity.';
+  
+  return {
+    dayDate: day.date,
+    dayTitle: day.title,
+    itemTitle,
+    itemIndex,
+    phase: day.phase,
+    what: `Implement ${itemTitle}. This is part of the "${day.title}" deliverable in ${day.phase}.`,
+    why,
+    how: day.items,
+    doneWhen: day.doneWhen,
+    dependencies: `Prerequisite for downstream ${day.phase} milestones and subsequent sprint integration.`,
+    nextAction: `Execute: ${itemTitle}`,
+  };
+}
+
+export type WhatsAppReportData = {
+  date: string;
+  completedTasks: string[];
+  pendingTasks: string[];
+  blockedTasks: string[];
+  tomorrowTasks: string[];
+};
+
+export function formatWhatsAppReport(data: WhatsAppReportData): string {
+  const total = data.completedTasks.length + data.pendingTasks.length;
+  const completedCount = data.completedTasks.length;
+
+  let text = `[Developer Progress]\n`;
+  text += `Today: ${completedCount}/${total} completed\n\n`;
+
+  if (data.completedTasks.length > 0) {
+    text += `Completed:\n`;
+    text += data.completedTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  } else {
+    text += `Completed:\n• None today yet\n\n`;
+  }
+
+  if (data.pendingTasks.length > 0) {
+    text += `Pending:\n`;
+    text += data.pendingTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  }
+
+  if (data.blockedTasks.length > 0) {
+    text += `Blocked:\n`;
+    text += data.blockedTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  }
+
+  if (data.tomorrowTasks.length > 0) {
+    text += `Tomorrow:\n`;
+    text += data.tomorrowTasks.map((t) => `• ${t}`).join('\n');
+  }
+
+  return text.trim();
+}
+
+export function formatSlackReport(data: WhatsAppReportData): string {
+  const total = data.completedTasks.length + data.pendingTasks.length;
+  const completedCount = data.completedTasks.length;
+
+  let text = `*Developer Standup Progress*\n`;
+  text += `> *Today:* ${completedCount}/${total} tasks completed\n\n`;
+
+  if (data.completedTasks.length > 0) {
+    text += `*Completed:*\n`;
+    text += data.completedTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  } else {
+    text += `*Completed:*\n• None today yet\n\n`;
+  }
+
+  if (data.pendingTasks.length > 0) {
+    text += `*Pending:*\n`;
+    text += data.pendingTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  }
+
+  if (data.blockedTasks.length > 0) {
+    text += `*Blocked:*\n`;
+    text += data.blockedTasks.map((t) => `• ${t}`).join('\n') + `\n\n`;
+  }
+
+  if (data.tomorrowTasks.length > 0) {
+    text += `*Tomorrow:*\n`;
+    text += data.tomorrowTasks.map((t) => `• ${t}`).join('\n');
+  }
+
+  return text.trim();
+}
+
+export type MissedDayItem = {
+  index: number;
+  item: string;
+  itemKey: string;
+  override?: import('./storage').TaskOverride;
+  reason?: import('./storage').TaskReason;
+};
+
+export type MissedDaySummary = {
+  date: string;
+  day: PlanDay;
+  missedTasks: MissedDayItem[];
+  completedTasks: string[];
+  blockedText?: string;
+  noteText?: string;
+  whyItMatters: string;
+  dependencies: string;
+  nextAction: string;
+};
+
+export function getMissedDays(
+  currentDate: string,
+  states: import('./storage').ItemStates,
+  taskOverrides: import('./storage').TaskOverridesMap = {},
+  endOfDayMap: import('./storage').EndOfDayMap = {},
+  blockedMap: import('./storage').TextMap = {},
+  notesMap: import('./storage').TextMap = {}
+): MissedDaySummary[] {
+  const missedDays: MissedDaySummary[] = [];
+
+  for (const day of plan) {
+    if (day.date >= currentDate) continue;
+
+    const missedTasks: MissedDayItem[] = [];
+    const completedTasks: string[] = [];
+
+    day.items.forEach((item, index) => {
+      const key = `${day.date}:${index}`;
+      const isDone = Boolean(states[key]);
+      const override = taskOverrides[key];
+
+      if (isDone || override?.action === 'unnecessary') {
+        completedTasks.push(item);
+      } else {
+        const eodLog = endOfDayMap[day.date];
+        const reason = eodLog?.taskReasons?.[key];
+        missedTasks.push({
+          index,
+          item,
+          itemKey: key,
+          override,
+          reason,
+        });
+      }
+    });
+
+    if (missedTasks.length > 0) {
+      const detail = getTaskDetail(day, missedTasks[0]?.index);
+      missedDays.push({
+        date: day.date,
+        day,
+        missedTasks,
+        completedTasks,
+        blockedText: blockedMap[day.date],
+        noteText: notesMap[day.date],
+        whyItMatters: detail.why,
+        dependencies: detail.dependencies,
+        nextAction: `Complete ${missedTasks[0].item} before proceeding with ${currentDate} schedule.`,
+      });
+    }
+  }
+
+  return missedDays;
+}
+

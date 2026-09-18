@@ -2,65 +2,71 @@
 
 import type { ThemeMode } from '@/lib/storage';
 
-type Tab = 'today' | 'tomorrow' | 'week' | 'all' | 'overdue';
+export type PlannerNavView = 'home' | 'schedule' | 'tasks' | 'memory' | 'ai';
 
 export function NavigationDock({
-  tab,
-  setTab,
+  view,
+  setView,
   theme,
   toggleTheme,
+  overdueCount = 0,
+  memoryCount = 0,
 }: {
-  tab: Tab;
-  setTab: (tab: Tab) => void;
+  view: PlannerNavView;
+  setView: (view: PlannerNavView) => void;
   theme: ThemeMode;
   toggleTheme: () => void;
+  overdueCount?: number;
+  memoryCount?: number;
 }) {
   return (
     <div className="dock-wrapper">
       <nav className="floating-dock" aria-label="Mobile bottom navigation">
         <button
           type="button"
-          className={`dock-item ${tab === 'today' ? 'active' : ''}`}
-          onClick={() => setTab('today')}
+          className={`dock-item ${view === 'home' ? 'active' : ''}`}
+          onClick={() => setView('home')}
         >
           <HomeIcon />
-          <span>Today</span>
+          <span>Home</span>
         </button>
 
         <button
           type="button"
-          className={`dock-item ${tab === 'tomorrow' ? 'active' : ''}`}
-          onClick={() => setTab('tomorrow')}
-        >
-          <SparkIcon />
-          <span>Tomorrow</span>
-        </button>
-
-        <button
-          type="button"
-          className={`dock-item ${tab === 'week' ? 'active' : ''}`}
-          onClick={() => setTab('week')}
+          className={`dock-item ${view === 'schedule' ? 'active' : ''}`}
+          onClick={() => setView('schedule')}
         >
           <CalendarIcon />
-          <span>Week</span>
+          <span>Schedule</span>
         </button>
 
         <button
           type="button"
-          className={`dock-item ${tab === 'all' ? 'active' : ''}`}
-          onClick={() => setTab('all')}
+          className={`dock-item ${view === 'tasks' ? 'active' : ''}`}
+          onClick={() => setView('tasks')}
         >
           <GridIcon />
-          <span>Roadmap</span>
+          <span>Tasks</span>
+          {overdueCount > 0 && <span className="dock-badge alert">{overdueCount}</span>}
         </button>
 
         <button
           type="button"
-          className={`dock-item ${tab === 'overdue' ? 'active' : ''}`}
-          onClick={() => setTab('overdue')}
+          className={`dock-item ${view === 'memory' ? 'active' : ''}`}
+          onClick={() => setView('memory')}
         >
-          <AlertCircleIcon />
-          <span>Overdue</span>
+          <BrainIcon />
+          <span>Memory</span>
+          {memoryCount > 0 && <span className="dock-badge">{memoryCount}</span>}
+        </button>
+
+        <button
+          type="button"
+          className={`dock-item ${view === 'ai' ? 'active' : ''}`}
+          onClick={() => setView('ai')}
+        >
+          <SparkIcon />
+          <span>AI</span>
         </button>
 
         <div className="dock-separator" />
@@ -141,6 +147,15 @@ function MoonIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  );
+}
+
+function BrainIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z" />
+      <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z" />
     </svg>
   );
 }

@@ -10,6 +10,7 @@ import {
   TargetCrosshairIcon,
   NotebookIcon,
   AlertOctagonIcon,
+  ArrowRightIcon,
 } from '@/lib/visuals';
 import { BlockerSuggestionWidget } from './AiAssistant';
 
@@ -33,6 +34,7 @@ export function DayCard({
   notes,
   blocked,
   onSaveText,
+  onOpenTaskDetail,
   compact = false,
   split = false,
 }: {
@@ -42,6 +44,7 @@ export function DayCard({
   notes: TextMap;
   blocked: TextMap;
   onSaveText: (date: string, field: 'note' | 'blocked', value: string) => void;
+  onOpenTaskDetail?: (day: PlanDay, index: number) => void;
   compact?: boolean;
   split?: boolean;
 }) {
@@ -101,19 +104,39 @@ export function DayCard({
             const checked = Boolean(states[itemKey(day.date, index)]);
             const chip = getTaskChip(item);
             return (
-              <label
+              <div
                 className={`check-row ${checked ? 'checked' : ''}`}
                 key={`${day.date}-${index}`}
               >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => onToggle(day, index)}
-                />
-                <span className="fake-check">{checked ? '✓' : ''}</span>
+                <label className="check-row-toggle">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => onToggle(day, index)}
+                  />
+                  <span className="fake-check">{checked ? '✓' : ''}</span>
+                </label>
                 <span className={`task-chip chip-${chip.type}`}>{chip.label}</span>
-                <span className="check-text">{item}</span>
-              </label>
+                <span
+                  className="check-text clickable"
+                  onClick={() => onOpenTaskDetail && onOpenTaskDetail(day, index)}
+                  title={onOpenTaskDetail ? 'Click to inspect What, Why, How, and AI Explain' : undefined}
+                >
+                  {item}
+                </span>
+                {onOpenTaskDetail && (
+                  <button
+                    type="button"
+                    className="task-inspect-btn"
+                    onClick={() => onOpenTaskDetail(day, index)}
+                    title="View What, Why, How, and AI Explain"
+                    aria-label={`View details for ${item}`}
+                  >
+                    <span>Details</span>
+                    <ArrowRightIcon size={11} />
+                  </button>
+                )}
+              </div>
             );
           })}
         </div>

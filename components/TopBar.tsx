@@ -2,33 +2,38 @@
 
 import type { User } from '@supabase/supabase-js';
 import type { ThemeMode } from '@/lib/storage';
-
-type Tab = 'today' | 'tomorrow' | 'week' | 'all' | 'overdue';
+import type { PlannerNavView } from './NavigationDock';
 
 type TopBarProps = {
-  tab: Tab;
-  setTab: (tab: Tab) => void;
+  view: PlannerNavView;
+  setView: (view: PlannerNavView) => void;
   activeWeekNumber: number;
   online: boolean;
   theme: ThemeMode;
   toggleTheme: () => void;
   user: User | null;
   onSignOut?: () => void;
+  onOpenEndOfDay: () => void;
+  onOpenWhatsApp: () => void;
+  overdueCount?: number;
 };
 
 export function TopBar({
-  tab,
-  setTab,
+  view,
+  setView,
   activeWeekNumber,
   online,
   theme,
   toggleTheme,
   user,
   onSignOut,
+  onOpenEndOfDay,
+  onOpenWhatsApp,
+  overdueCount = 0,
 }: TopBarProps) {
   return (
     <header className="topbar">
-      <div className="brand-row">
+      <div className="brand-row" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
         <img
           src="/bookingpartner.png"
           alt="BookingPartner.lk"
@@ -38,7 +43,7 @@ export function TopBar({
         />
         <div>
           <p className="eyebrow">BOOKINGPARTNER.LK</p>
-          <h1>Backend Planner</h1>
+          <h1>Dev Assistant & Memory</h1>
         </div>
       </div>
 
@@ -46,47 +51,62 @@ export function TopBar({
       <nav className="header-nav-capsule" aria-label="Main views">
         <button
           type="button"
-          onClick={() => setTab('today')}
-          className={tab === 'today' ? 'active' : ''}
+          onClick={() => setView('home')}
+          className={view === 'home' ? 'active' : ''}
         >
-          Today
+          Home
         </button>
         <button
           type="button"
-          onClick={() => setTab('tomorrow')}
-          className={tab === 'tomorrow' ? 'active' : ''}
+          onClick={() => setView('schedule')}
+          className={view === 'schedule' ? 'active' : ''}
         >
-          Tomorrow
+          Schedule
         </button>
         <button
           type="button"
-          onClick={() => setTab('week')}
-          className={tab === 'week' ? 'active' : ''}
+          onClick={() => setView('tasks')}
+          className={view === 'tasks' ? 'active' : ''}
         >
-          Week {activeWeekNumber}
+          Tasks {overdueCount > 0 && <span className="nav-count-badge alert">{overdueCount}</span>}
         </button>
         <button
           type="button"
-          onClick={() => setTab('all')}
-          className={tab === 'all' ? 'active' : ''}
+          onClick={() => setView('memory')}
+          className={view === 'memory' ? 'active' : ''}
         >
-          Roadmap
+          Memory
         </button>
         <button
           type="button"
-          onClick={() => setTab('overdue')}
-          className={tab === 'overdue' ? 'active' : ''}
-          title="Filter overdue tasks"
+          onClick={() => setView('ai')}
+          className={view === 'ai' ? 'active' : ''}
         >
-          Overdue
+          AI Assistant
         </button>
-        <span className="header-nav-badge" title="84 days total schedule">
-          84
-        </span>
       </nav>
 
       {/* Right Utility Actions */}
       <div className="top-actions">
+        <button
+          type="button"
+          className="top-quick-btn eod"
+          onClick={onOpenEndOfDay}
+          title="Daily Check: Wrap up and store incomplete task reasons"
+        >
+          <ClockCheckIcon />
+          <span className="hide-mobile-sm">End Day</span>
+        </button>
+
+        <button
+          type="button"
+          className="top-quick-btn wa"
+          onClick={onOpenWhatsApp}
+          title="Generate WhatsApp/Slack Daily Standup"
+        >
+          <SendIcon />
+          <span className="hide-mobile-sm">Report</span>
+        </button>
         <span
           className={`status-pill ${online ? 'online' : 'offline'}`}
           title={online ? 'Internet Connected' : 'Offline Mode'}
@@ -169,6 +189,24 @@ function OfflineWifiIcon() {
       <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
       <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
       <line x1="12" y1="20" x2="12.01" y2="20" strokeWidth="3" />
+    </svg>
+  );
+}
+
+function ClockCheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
   );
 }

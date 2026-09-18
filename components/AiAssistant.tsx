@@ -15,6 +15,7 @@ import {
   CheckCircleIcon,
   ClockIcon,
   ZapIcon,
+  ArrowRightIcon,
 } from '@/lib/visuals';
 
 // Inline Markdown Parser: parses **bold** and `code` tokens
@@ -668,7 +669,9 @@ export function DriftDetectorModal({
                 .filter(Boolean)
                 .map((line, idx) => (
                   <div key={idx} className="verdict-bullet-card">
-                    <span className="verdict-dot">→</span>
+                    <span className="verdict-dot">
+                      <ArrowRightIcon size={12} />
+                    </span>
                     <span className="verdict-text">{renderInlineMarkdown(line.replace(/^[-*•]\s*/, ''))}</span>
                   </div>
                 ))}
