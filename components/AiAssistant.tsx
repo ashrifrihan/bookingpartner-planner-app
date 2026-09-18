@@ -13,7 +13,241 @@ import {
   GaugeIcon,
   NotebookIcon,
   CheckCircleIcon,
+  ClockIcon,
+  ZapIcon,
 } from '@/lib/visuals';
+
+// Inline Markdown Parser: parses **bold** and `code` tokens
+export function renderInlineMarkdown(text: string): React.ReactNode[] {
+  if (!text) return [];
+  const regex = /(\*\*[^*]+\*\*|`[^`]+`)/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="ai-strong">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code key={i} className="ai-code">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
+}
+
+type BriefSections = {
+  deliverables: string;
+  yesterday: string;
+  focus: string;
+  other: string[];
+};
+
+export function parseBriefSections(text: string): BriefSections {
+  const sections: BriefSections = {
+    deliverables: '',
+    yesterday: '',
+    focus: '',
+    other: [],
+  };
+
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  for (const para of paragraphs) {
+    const headingMatch = /^\*\*(.*?)\*\*:?\s*([\s\S]*)$/.exec(para);
+    if (headingMatch) {
+      const heading = headingMatch[1].toLowerCase();
+      const content = headingMatch[2].trim();
+
+      if (heading.includes('deliverable') || heading.includes('today')) {
+        sections.deliverables = content;
+      } else if (heading.includes('yesterday') || heading.includes('status') || heading.includes('blocker')) {
+        sections.yesterday = content;
+      } else if (heading.includes('focus') || heading.includes('recommend') || heading.includes('priority')) {
+        sections.focus = content;
+      } else {
+        sections.other.push(para);
+      }
+    } else {
+      const lower = para.toLowerCase();
+      if (lower.startsWith("today's deliverables") || lower.startsWith("deliverables")) {
+        sections.deliverables = para.replace(/^[^:]+:\s*/i, '');
+      } else if (lower.startsWith("status from yesterday") || lower.startsWith("yesterday")) {
+        sections.yesterday = para.replace(/^[^:]+:\s*/i, '');
+      } else if (lower.startsWith("recommended focus") || lower.startsWith("focus")) {
+        sections.focus = para.replace(/^[^:]+:\s*/i, '');
+      } else {
+        sections.other.push(para);
+      }
+    }
+  }
+
+  return sections;
+}
+
+// Bento Intelligence Grid Component for Daily Brief
+export function DailyBriefBento({ text }: { text: string }) {
+  const sections = parseBriefSections(text);
+  const hasStructuredSections = sections.deliverables || sections.yesterday || sections.focus;
+
+  if (!hasStructuredSections) {
+    return <FormattedAiText text={text} />;
+  }
+
+  const isCleanSlate =
+    !sections.yesterday ||
+    sections.yesterday.toLowerCase().includes('no carryover') ||
+    sections.yesterday.toLowerCase().includes('clean slate') ||
+    sections.yesterday.toLowerCase().includes('none');
+
+  return (
+    <div className="brief-bento-container">
+      <div className="brief-bento-grid">
+        {/* Card 1: Today's Deliverables */}
+        <div className="bento-card bento-deliverables">
+          <div className="bento-card-head">
+            <div className="bento-icon-badge target">
+              <TargetCrosshairIcon />
+            </div>
+            <div className="bento-title-group">
+              <span className="bento-title">Today&apos;s Deliverables</span>
+              <span className="bento-tag tag-primary">PRIMARY FOCUS</span>
+            </div>
+          </div>
+          <div className="bento-card-body">
+            {sections.deliverables ? (
+              <div className="bento-text">{renderInlineMarkdown(sections.deliverables)}</div>
+            ) : (
+              <div className="bento-text muted">Synchronizing scheduled items for today.</div>
+            )}
+          </div>
+        </div>
+
+        {/* Card 2: Status from Yesterday */}
+        <div className="bento-card bento-yesterday">
+          <div className="bento-card-head">
+            <div className="bento-icon-badge history">
+              <ClockIcon />
+            </div>
+            <div className="bento-title-group">
+              <span className="bento-title">Yesterday&apos;s Velocity</span>
+              <span className={`bento-tag ${isCleanSlate ? 'tag-clean' : 'tag-warn'}`}>
+                {isCleanSlate ? 'CLEAN SLATE' : 'ATTENTION'}
+              </span>
+            </div>
+          </div>
+          <div className="bento-card-body">
+            {sections.yesterday ? (
+              <div className="bento-text">{renderInlineMarkdown(sections.yesterday)}</div>
+            ) : (
+              <div className="bento-text muted">No unresolved tasks from yesterday.</div>
+            )}
+          </div>
+        </div>
+
+        {/* Card 3: Recommended Focus */}
+        <div className="bento-card bento-action">
+          <div className="bento-card-head">
+            <div className="bento-icon-badge focus">
+              <ZapIcon />
+            </div>
+            <div className="bento-title-group">
+              <span className="bento-title">Recommended Action</span>
+              <span className="bento-tag tag-action">STEP 1</span>
+            </div>
+          </div>
+          <div className="bento-card-body">
+            {sections.focus ? (
+              <div className="bento-text">{renderInlineMarkdown(sections.focus)}</div>
+            ) : (
+              <div className="bento-text muted">Follow sequential task checklist.</div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {sections.other.length > 0 && (
+        <div className="brief-bento-other">
+          {sections.other.map((para, i) => (
+            <div key={i} className="bento-other-item">
+              {renderInlineMarkdown(para)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Formatted AI Text Component: fallback for general markdown text
+export function FormattedAiText({ text }: { text: string }) {
+  if (!text) return null;
+
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="ai-formatted-content">
+      {paragraphs.map((para, pIdx) => {
+        const headingMatch = /^\*\*(.*?)\*\*:?\s*([\s\S]*)$/.exec(para);
+        if (headingMatch) {
+          const headingTitle = headingMatch[1].replace(/:$/, '').trim();
+          const bodyText = headingMatch[2].trim();
+
+          return (
+            <div key={pIdx} className="ai-brief-section-card">
+              <div className="ai-brief-section-head">
+                <span className="ai-section-badge">{headingTitle}</span>
+              </div>
+              <div className="ai-brief-section-body">
+                {bodyText ? renderInlineMarkdown(bodyText) : null}
+              </div>
+            </div>
+          );
+        }
+
+        const lines = para.split('\n').map((l) => l.trim()).filter(Boolean);
+        const isBulletList =
+          lines.length > 1 &&
+          lines.every(
+            (l) => l.startsWith('- ') || l.startsWith('* ') || /^\d+\.\s/.test(l)
+          );
+
+        if (isBulletList) {
+          return (
+            <ul key={pIdx} className="ai-brief-list">
+              {lines.map((line, lIdx) => (
+                <li key={lIdx} className="ai-brief-list-item">
+                  <span className="ai-list-bullet">▪</span>
+                  <span className="ai-list-text">
+                    {renderInlineMarkdown(line.replace(/^[-*•]\s+|\d+\.\s+/, ''))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={pIdx} className="ai-brief-para">
+            {renderInlineMarkdown(para)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export function DailyBriefCard({
   todayDate,
@@ -63,17 +297,23 @@ export function DailyBriefCard({
   }
 
   return (
-    <section className="ai-card" aria-label="Daily AI Brief">
-      <div className="ai-card-head">
-        <div className="ai-card-title-group">
-          <SparkleIcon />
-          <span className="ai-card-title">DAILY AI BRIEF</span>
+    <section className="daily-intel-card" aria-label="Daily AI Brief">
+      {/* Sleek Command Center Header */}
+      <div className="intel-card-header">
+        <div className="intel-header-meta">
+          <div className="intel-live-pill">
+            <span className="live-dot-pulse" />
+            <span>AI COPILOT</span>
+          </div>
+          <span className="intel-date-badge">{todayDate}</span>
+          <span className="intel-context-badge">DAY BRIEFING</span>
         </div>
-        <div className="ai-card-actions">
+
+        <div className="intel-header-actions">
           {brief && (
             <button
               type="button"
-              className="ai-text-btn"
+              className="intel-text-action"
               onClick={() => setExpanded(!expanded)}
             >
               {expanded ? 'Collapse' : 'Expand'}
@@ -81,22 +321,30 @@ export function DailyBriefCard({
           )}
           <button
             type="button"
-            className="ai-pill-btn"
+            className="intel-action-btn"
             onClick={handleGenerateBrief}
             disabled={loading}
           >
             {loading ? (
               <>
                 <LoadingSpinner />
-                <span>Analyzing…</span>
+                <span>Synthesizing…</span>
               </>
-            ) : brief ? (
-              'Regenerate'
             ) : (
-              'Generate Brief'
+              <>
+                <SparkleIcon />
+                <span>{brief ? 'Regenerate Brief' : 'Generate Morning Brief'}</span>
+              </>
             )}
           </button>
         </div>
+      </div>
+
+      <div className="intel-headline-row">
+        <h3 className="intel-headline">Morning Intelligence & Execution Brief</h3>
+        <p className="intel-subheadline">
+          Synthesized priorities, carryover dependency triage, and tactical sequence for {todayTitle || 'today'}.
+        </p>
       </div>
 
       {errorMsg && (
@@ -105,18 +353,23 @@ export function DailyBriefCard({
         </div>
       )}
 
+      {/* Bento Grid Body */}
       {brief && expanded && (
-        <div className="ai-content-body">
-          {brief.split('\n\n').map((paragraph, idx) => (
-            <p key={idx}>{paragraph}</p>
-          ))}
-        </div>
+        <DailyBriefBento text={brief} />
       )}
 
       {!brief && !loading && !errorMsg && (
-        <p className="ai-card-placeholder">
-          Start your day with an AI summary of today&apos;s deliverables and unresolved items from yesterday.
-        </p>
+        <div className="intel-placeholder-box" onClick={handleGenerateBrief}>
+          <div className="intel-placeholder-icon">
+            <SparkleIcon />
+          </div>
+          <div>
+            <h4 style={{ margin: '0 0 3px', fontSize: '13.5px', fontWeight: 850 }}>Ready for Today&apos;s Engineering Briefing</h4>
+            <p style={{ margin: 0, fontSize: '12px', color: 'var(--ink-muted)' }}>
+              Click to generate an instant executive summary of deliverables, carryover items, and first action.
+            </p>
+          </div>
+        </div>
       )}
     </section>
   );
@@ -176,9 +429,7 @@ export function BlockerSuggestionWidget({
 
       {suggestion ? (
         <div className="ai-suggestion-text">
-          {suggestion.split('\n').map((line, i) => (
-            <div key={i}>{line}</div>
-          ))}
+          <FormattedAiText text={suggestion} />
         </div>
       ) : (
         <div className="ai-inline-prompt">
@@ -355,7 +606,7 @@ export function DriftDetectorModal({
           </div>
 
           <div className="drift-stat-card">
-            <div className="drift-card-icon" style={{ color: 'var(--purple-brand)' }}>
+            <div className="drift-card-icon">
               <GaugeIcon />
             </div>
             <span ref={paceRef} className="drift-stat-num">
@@ -418,7 +669,7 @@ export function DriftDetectorModal({
                 .map((line, idx) => (
                   <div key={idx} className="verdict-bullet-card">
                     <span className="verdict-dot">→</span>
-                    <span className="verdict-text">{line.replace(/^[-*•]\s*/, '')}</span>
+                    <span className="verdict-text">{renderInlineMarkdown(line.replace(/^[-*•]\s*/, ''))}</span>
                   </div>
                 ))}
             </div>
@@ -437,16 +688,15 @@ export function DriftDetectorModal({
         {errorMsg && <p className="ai-error-notice">{errorMsg}</p>}
 
         {/* Modal Action Buttons */}
-        <div className="modal-actions-row" style={{ marginTop: '20px' }}>
-          <button type="button" className="secondary-button" onClick={onClose} style={{ flex: 1 }}>
+        <div className="modal-actions-row">
+          <button type="button" className="secondary-button modal-btn" onClick={onClose}>
             Close
           </button>
           <button
             type="button"
-            className="primary-button"
+            className="primary-button modal-btn"
             onClick={handleAnalyze}
             disabled={loading}
-            style={{ flex: 1.5, marginTop: 0 }}
           >
             {loading ? <LoadingSpinner /> : <SparkleIcon />}
             <span>{loading ? 'Analyzing Pace…' : analysis ? 'Re-Analyze Schedule' : 'Analyze Schedule Risk'}</span>
@@ -505,7 +755,7 @@ export function WeeklyRetroModal({
         <div className="modal-head">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <SparkleIcon />
-            <h3 style={{ margin: 0 }}>Week {weekNumber} Retro ({weekPhase})</h3>
+            <h3 style={{ margin: 0 }}>Week {weekNumber} Retrospective</h3>
           </div>
           <button type="button" className="modal-close-btn" onClick={onClose}>
             ×
@@ -517,14 +767,8 @@ export function WeeklyRetroModal({
         </p>
 
         {retro ? (
-          <div className="ai-content-body" style={{ marginTop: '10px', background: 'var(--surface-sunken)', padding: '14px', borderRadius: '8px' }}>
-            {retro.split('\n\n').map((paragraph, idx) => (
-              <div key={idx} style={{ marginBottom: '8px', fontSize: '13px', lineHeight: 1.5 }}>
-                {paragraph.split('\n').map((l, i) => (
-                  <div key={i}>{l}</div>
-                ))}
-              </div>
-            ))}
+          <div className="ai-content-body" style={{ marginTop: '10px' }}>
+            <FormattedAiText text={retro} />
           </div>
         ) : (
           !loading && (
@@ -540,15 +784,14 @@ export function WeeklyRetroModal({
         {errorMsg && <p className="ai-error-notice">{errorMsg}</p>}
 
         <div className="modal-actions-row">
-          <button type="button" className="secondary-button" onClick={onClose} style={{ flex: 1 }}>
+          <button type="button" className="secondary-button modal-btn" onClick={onClose}>
             Close
           </button>
           <button
             type="button"
-            className="primary-button"
+            className="primary-button modal-btn"
             onClick={handleGenerateRetro}
             disabled={loading}
-            style={{ flex: 1.5, marginTop: 0 }}
           >
             {loading ? <LoadingSpinner /> : <SparkleIcon />}
             <span>{loading ? 'Summarizing Week…' : retro ? 'Regenerate Retro' : 'Generate Weekly Retro'}</span>
