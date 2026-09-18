@@ -308,6 +308,73 @@ export default function Dashboard() {
     return plan;
   }, [tab, today, tomorrow, todayPlan]);
 
+  // Key KPI metrics calculations (Always called unconditionally at top of component)
+  const completedDaysCount = useMemo(() => {
+    return plan.filter((day) => day.items.every((_, idx) => states[itemKey(day.date, idx)])).length;
+  }, [states]);
+
+  const activeWeekNumber = todayPlan?.week ?? (today < PLAN_START ? 1 : 12);
+  const activeWeekDays = useMemo(() => plan.filter((day) => day.week === activeWeekNumber), [activeWeekNumber]);
+  const activeWeekKeys = useMemo(
+    () => activeWeekDays.flatMap((day) => day.items.map((_, idx) => itemKey(day.date, idx))),
+    [activeWeekDays]
+  );
+  const activeWeekDone = useMemo(
+    () => activeWeekKeys.filter((key) => states[key]).length,
+    [activeWeekKeys, states]
+  );
+  const activeWeekPercent = activeWeekKeys.length
+    ? Math.round((activeWeekDone / activeWeekKeys.length) * 100)
+    : 0;
+
+  const daysRemaining = Math.max(0, plan.length - completedDaysCount);
+
+  // 7-bar chart data for the active week sprint (matching FINNOVA Card 2)
+  const weekBarsData = useMemo(() => {
+    return activeWeekDays.map((day) => {
+      const keys = day.items.map((_, idx) => itemKey(day.date, idx));
+      const done = keys.filter((k) => states[k]).length;
+      const pct = keys.length ? Math.round((done / keys.length) * 100) : 0;
+      const dateObj = new Date(`${day.date}T12:00:00`);
+      const label = new Intl.DateTimeFormat('en-US', { weekday: 'narrow' }).format(dateObj);
+      return {
+        date: day.date,
+        label,
+        pct,
+        isToday: day.date === today,
+        isComplete: pct === 100,
+      };
+    });
+  }, [activeWeekDays, states, today]);
+
+  // 12-week curved sparkline SVG data (matching FINNOVA Card 3)
+  const sparklineData = useMemo(() => {
+    const pts = Array.from({ length: 12 }, (_, i) => {
+      const w = i + 1;
+      const wDays = plan.filter((d) => d.week === w);
+      const wKeys = wDays.flatMap((d) => d.items.map((_, idx) => itemKey(d.date, idx)));
+      const done = wKeys.filter((k) => states[k]).length;
+      return wKeys.length ? Math.round((done / wKeys.length) * 100) : 0;
+    });
+
+    const coords = pts.map((val, i) => {
+      const x = 10 + i * 14;
+      const y = Math.round(36 - (val / 100) * 26);
+      return { x, y, val, week: i + 1 };
+    });
+
+    const pathD = coords.reduce((acc, pt, idx, arr) => {
+      if (idx === 0) return `M ${pt.x} ${pt.y}`;
+      const prev = arr[idx - 1];
+      const cx = (prev.x + pt.x) / 2;
+      return `${acc} C ${cx} ${prev.y}, ${cx} ${pt.y}, ${pt.x} ${pt.y}`;
+    }, '');
+
+    const areaD = `${pathD} L ${coords[coords.length - 1].x} 44 L ${coords[0].x} 44 Z`;
+
+    return { coords, pathD, areaD };
+  }, [states]);
+
   async function handleAuth(event: FormEvent) {
     event.preventDefault();
     if (!supabase) return;
@@ -486,73 +553,6 @@ export default function Dashboard() {
   }
 
   const currentDayNumber = todayPlan ? plan.findIndex((day) => day.date === todayPlan.date) + 1 : null;
-
-  // Key KPI metrics calculations
-  const completedDaysCount = useMemo(() => {
-    return plan.filter((day) => day.items.every((_, idx) => states[itemKey(day.date, idx)])).length;
-  }, [states]);
-
-  const activeWeekNumber = todayPlan?.week ?? (today < PLAN_START ? 1 : 12);
-  const activeWeekDays = useMemo(() => plan.filter((day) => day.week === activeWeekNumber), [activeWeekNumber]);
-  const activeWeekKeys = useMemo(
-    () => activeWeekDays.flatMap((day) => day.items.map((_, idx) => itemKey(day.date, idx))),
-    [activeWeekDays]
-  );
-  const activeWeekDone = useMemo(
-    () => activeWeekKeys.filter((key) => states[key]).length,
-    [activeWeekKeys, states]
-  );
-  const activeWeekPercent = activeWeekKeys.length
-    ? Math.round((activeWeekDone / activeWeekKeys.length) * 100)
-    : 0;
-
-  const daysRemaining = Math.max(0, plan.length - completedDaysCount);
-
-  // 7-bar chart data for the active week sprint (matching FINNOVA Card 2)
-  const weekBarsData = useMemo(() => {
-    return activeWeekDays.map((day) => {
-      const keys = day.items.map((_, idx) => itemKey(day.date, idx));
-      const done = keys.filter((k) => states[k]).length;
-      const pct = keys.length ? Math.round((done / keys.length) * 100) : 0;
-      const dateObj = new Date(`${day.date}T12:00:00`);
-      const label = new Intl.DateTimeFormat('en-US', { weekday: 'narrow' }).format(dateObj);
-      return {
-        date: day.date,
-        label,
-        pct,
-        isToday: day.date === today,
-        isComplete: pct === 100,
-      };
-    });
-  }, [activeWeekDays, states, today]);
-
-  // 12-week curved sparkline SVG data (matching FINNOVA Card 3)
-  const sparklineData = useMemo(() => {
-    const pts = Array.from({ length: 12 }, (_, i) => {
-      const w = i + 1;
-      const wDays = plan.filter((d) => d.week === w);
-      const wKeys = wDays.flatMap((d) => d.items.map((_, idx) => itemKey(d.date, idx)));
-      const done = wKeys.filter((k) => states[k]).length;
-      return wKeys.length ? Math.round((done / wKeys.length) * 100) : 0;
-    });
-
-    const coords = pts.map((val, i) => {
-      const x = 10 + i * 14;
-      const y = Math.round(36 - (val / 100) * 26);
-      return { x, y, val, week: i + 1 };
-    });
-
-    const pathD = coords.reduce((acc, pt, idx, arr) => {
-      if (idx === 0) return `M ${pt.x} ${pt.y}`;
-      const prev = arr[idx - 1];
-      const cx = (prev.x + pt.x) / 2;
-      return `${acc} C ${cx} ${prev.y}, ${cx} ${pt.y}, ${pt.x} ${pt.y}`;
-    }, '');
-
-    const areaD = `${pathD} L ${coords[coords.length - 1].x} 44 L ${coords[0].x} 44 Z`;
-
-    return { coords, pathD, areaD };
-  }, [states]);
 
   return (
     <main className="app-shell">
