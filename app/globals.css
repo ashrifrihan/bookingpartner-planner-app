@@ -1372,40 +1372,68 @@ footer {
     padding: 12px 0 28px;
   }
 
-  /* Compact mobile topbar */
+  /* Compact mobile topbar (Perfect for S23 Ultra, A56, iPhone) */
   .topbar {
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: center;
   }
 
   .brand-row {
-    gap: 10px;
+    gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .brand-mark.small {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    flex-shrink: 0;
   }
 
   .topbar h1 {
-    font-size: 16.5px;
+    font-size: 13.5px !important;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: -0.01em;
   }
 
   .eyebrow {
-    font-size: 9.5px;
-    letter-spacing: 0.08em;
+    font-size: 9px !important;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    margin: 0 0 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--ink-secondary);
+  }
+
+  .top-actions {
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .top-quick-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+    min-height: 32px !important;
   }
 
   .status-pill {
-    padding: 5px 9px;
-    font-size: 11px;
+    padding: 4px 7px;
+    font-size: 10px;
     gap: 4px;
   }
 
   .icon-pill-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
   }
 
   /* Page title row: stacked & full-width buttons */
@@ -2350,6 +2378,98 @@ footer {
   text-transform: uppercase;
   color: var(--ink-muted);
   margin-bottom: 4px;
+}
+
+/* Modern Day Card Header Layout */
+.day-card-head-modern {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.day-card-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.day-card-badge-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.phase-badge-modern {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+.phase-badge-modern svg {
+  width: 12px;
+  height: 12px;
+}
+
+.day-schedule-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+}
+
+.day-schedule-meta .meta-dot {
+  color: var(--ink-muted);
+  font-size: 10px;
+}
+
+.day-progress-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-fraction {
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.progress-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--surface-card-elevated);
+  color: var(--ink-secondary);
+  border: 1px solid var(--line-subtle);
+}
+
+.progress-pill.completed {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.day-card-title-modern {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .ring-wrapper {
@@ -4970,7 +5090,7 @@ footer {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: -10px;
+  margin-bottom: 12px;
 }
 
 .flow-client-pill {
@@ -5001,14 +5121,6 @@ footer {
 .flow-pill-separator {
   color: var(--ink-muted);
   opacity: 0.6;
-}
-
-.flow-stem-connector {
-  width: 2px;
-  height: 22px;
-  background: linear-gradient(to bottom, #93c5fd, #3b82f6);
-  border-radius: 2px;
-  margin: 4px 0;
 }
 
 .flow-node-card.central-task-node {
@@ -5663,11 +5775,6 @@ footer {
     box-sizing: border-box !important;
   }
 
-  .flow-stem-connector {
-    height: 12px !important;
-    margin: 2px 0 !important;
-  }
-
   /* Central Deliverable Card */
   .flow-node-card.central-task-node {
     padding: 16px 14px !important;
@@ -5765,6 +5872,29 @@ footer {
   .dashboard-main-grid {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
+  }
+
+  /* Day Card Modern Header Mobile */
+  .day-card-header-top {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .day-card-badge-row {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .day-progress-badge {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .day-card-title-modern {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
   }
 
   /* Subtasks section head */
@@ -5915,18 +6045,901 @@ footer {
   }
 }
 
-@media (max-width: 390px) {
-  /* Ultra-compact for small phones like iPhone SE */
-  .dock-item span {
-    display: none !important;
+/* ========================================================================= */
+/* iOS Clean Design: Mobile-First Today View (Matching Reference Screenshots) */
+/* ========================================================================= */
+
+.ios-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ios-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ios-page-title {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--ink-primary);
+}
+
+.ios-count-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-brand);
+  background: var(--purple-surface);
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+
+.ios-page-subtitle {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin: 4px 0 0;
+  letter-spacing: -0.01em;
+}
+
+.ios-date-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  background: var(--surface-sunken);
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line-subtle);
+  white-space: nowrap;
+}
+
+/* iOS Search Bar */
+.ios-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0 16px;
+  height: 44px;
+  margin-bottom: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ios-search-bar:focus-within {
+  border-color: var(--purple-brand);
+  box-shadow: 0 0 0 3px var(--purple-surface);
+}
+
+.ios-search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.ios-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--ink-primary);
+}
+
+.ios-search-input::placeholder {
+  color: var(--ink-muted);
+}
+
+.ios-search-clear {
+  color: var(--ink-muted);
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.ios-search-clear:hover {
+  color: var(--ink-primary);
+}
+
+/* iOS Filter Pills */
+.ios-filter-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ios-filter-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.ios-filter-pill {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.ios-filter-pill:hover {
+  color: var(--ink-primary);
+  border-color: var(--line-strong);
+}
+
+.ios-filter-pill.active {
+  background: var(--pill-active);
+  color: var(--pill-active-ink);
+  border-color: var(--pill-active);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ios-filter-pill.action-pill {
+  border-color: var(--purple-brand);
+  color: var(--purple-brand);
+  margin-left: auto;
+}
+
+/* Deliverable Card */
+.ios-deliverable-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.ios-deliverable-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ios-deliverable-kicker {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--purple-brand);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.ios-deliverable-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--ink-primary);
+  letter-spacing: -0.02em;
+}
+
+.ios-progress-percent {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--purple-brand);
+}
+
+.ios-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--ring-track);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.ios-progress-fill {
+  height: 100%;
+  background: var(--purple-brand);
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-deliverable-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ios-mini-action-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ios-mini-action-btn:hover {
+  color: var(--ink-primary);
+  border-color: var(--line-strong);
+}
+
+.ios-mini-action-btn.primary {
+  background: var(--purple-surface);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: var(--purple-brand);
+}
+
+.ios-mini-action-btn.warning {
+  background: var(--orange-surface);
+  border-color: rgba(249, 115, 22, 0.25);
+  color: var(--orange-accent);
+}
+
+/* iOS Task Cards (Matching reference screenshot) */
+.ios-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ios-task-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  padding: 15px 16px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04);
+}
+
+.ios-task-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.08);
+}
+
+.ios-task-card.done {
+  opacity: 0.78;
+}
+
+.ios-card-top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ios-checkbox-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ios-checkbox-btn:hover {
+  border-color: var(--purple-brand);
+}
+
+.ios-checkbox-btn.checked {
+  background: var(--purple-brand);
+  border-color: var(--purple-brand);
+}
+
+.ios-card-title-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.ios-task-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 5px;
+  color: var(--ink-primary);
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.ios-task-card.done .ios-task-title {
+  color: var(--ink-muted);
+  text-decoration: line-through;
+}
+
+.ios-task-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+}
+
+.ios-chip {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--surface-sunken);
+  color: var(--ink-secondary);
+}
+
+.ios-meta-dot {
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+.ios-task-step {
+  font-size: 11px;
+}
+
+.ios-card-index-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: var(--surface-sunken);
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.ios-card-divider {
+  border-top: 1px dashed var(--line-subtle);
+  margin: 12px 0 10px;
+}
+
+.ios-card-bottom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ios-status-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ios-status-pill .status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.ios-status-pill.completed {
+  background: var(--green-surface);
+  color: var(--green-emerald);
+}
+
+.ios-status-pill.completed .status-dot {
+  background: var(--green-emerald);
+}
+
+.ios-status-pill.pending {
+  background: var(--purple-surface);
+  color: var(--purple-brand);
+}
+
+.ios-status-pill.pending .status-dot {
+  background: var(--purple-brand);
+}
+
+.ios-card-details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--purple-brand);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.ios-card-details-btn:hover {
+  background: var(--purple-surface);
+}
+
+/* Empty State */
+.ios-empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--surface-card);
+  border-radius: 18px;
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-muted);
+  font-size: 13.5px;
+}
+
+.ios-empty-reset {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--purple-brand);
+  cursor: pointer;
+}
+
+/* iOS AI Schedule Guidance Card */
+.ios-ai-guidance-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--card-shadow);
+}
+
+.ios-ai-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ios-ai-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ink-primary);
+}
+
+.ios-ai-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+}
+
+.ios-ai-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-brand);
+  cursor: pointer;
+}
+
+.ios-ai-body p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-secondary);
+}
+
+/* Developer Memory Snapshot Card */
+.ios-memory-preview-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+.ios-memory-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ios-memory-head strong {
+  font-size: 14.5px;
+  color: var(--ink-primary);
+}
+
+.ios-memory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ios-memory-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--ink-secondary);
+}
+
+.ios-memory-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Floating Action Button beside Bottom Dock */
+.dock-wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 99;
+  pointer-events: none;
+  padding: 0 16px;
+}
+
+.dock-fab-btn {
+  pointer-events: auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--purple-brand);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dock-fab-btn:hover {
+  transform: scale(1.06);
+}
+
+.dock-fab-btn:active {
+  transform: scale(0.95);
+}
+
+.dock-fab-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========================================================================= */
+/* iOS Schedule View & Week Selector Strip (Mobile Optimized)               */
+/* ========================================================================= */
+
+.ios-schedule-view,
+.tasks-directory-view {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.ios-week-selector-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ios-week-selector-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.ios-week-pill {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ios-week-pill:hover {
+  color: var(--ink-primary);
+  border-color: var(--line-strong);
+}
+
+.ios-week-pill.active {
+  background: var(--pill-active);
+  color: var(--pill-active-ink);
+  border-color: var(--pill-active);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.ios-weeks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ios-week-block {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: var(--card-shadow);
+}
+
+.ios-week-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ios-week-meta-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.ios-week-kicker {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--purple-brand);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.ios-week-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin: 0 0 3px;
+  letter-spacing: -0.02em;
+}
+
+.ios-week-dates {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.ios-week-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.ios-week-fraction {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.ios-week-pill-badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--purple-surface);
+  color: var(--purple-brand);
+}
+
+.ios-week-pill-badge.done {
+  background: var(--green-surface);
+  color: var(--green-emerald);
+}
+
+.ios-days-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ========================================================================= */
+/* Tasks Directory Phase Pills & Controls                                   */
+/* ========================================================================= */
+
+.directory-phase-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.directory-phase-pills-row::-webkit-scrollbar {
+  display: none;
+}
+
+.phase-filter-pill {
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.phase-filter-pill:hover {
+  color: var(--ink-primary);
+}
+
+.phase-filter-pill.active {
+  background: var(--purple-surface);
+  color: var(--purple-brand);
+  border-color: rgba(59, 130, 246, 0.3);
+  font-weight: 600;
+}
+
+.directory-results-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.directory-reset-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-brand);
+  cursor: pointer;
+}
+
+.directory-load-more-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.directory-load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--purple-brand);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.35);
+}
+
+.directory-load-more-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -2px rgba(37, 99, 235, 0.45);
+}
+
+.directory-show-all-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  cursor: pointer;
+}
+
+/* Overdue status badge for task cards */
+.ios-status-pill.overdue {
+  background: rgba(244, 63, 94, 0.12);
+  color: #f43f5e;
+}
+
+.ios-status-pill.overdue .status-dot {
+  background: #f43f5e;
+}
+
+/* ========================================================================= */
+/* Mobile Screen Optimizations: Samsung Galaxy S23 Ultra, A56, iPhone       */
+/* ========================================================================= */
+
+@media (max-width: 480px) {
+  .ios-page-title {
+    font-size: 22px !important;
   }
 
-  .dock-item {
-    padding: 8px 10px !important;
+  .ios-count-badge {
+    font-size: 11px !important;
+    padding: 2px 8px !important;
   }
 
-  .flow-action-pills-row {
-    grid-template-columns: 1fr !important;
+  .ios-date-badge {
+    font-size: 11px !important;
+    padding: 4px 9px !important;
+  }
+
+  .ios-week-block {
+    padding: 14px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .ios-week-title {
+    font-size: 16px !important;
+  }
+
+  .ios-task-card {
+    padding: 13px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .ios-task-title {
+    font-size: 13.5px !important;
+  }
+
+  .ios-card-index-badge {
+    font-size: 10.5px !important;
+    padding: 2px 6px !important;
+  }
+
+  .day-card {
+    padding: 14px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .day-card-title-modern {
+    font-size: 15px !important;
+  }
+
+  .check-text {
+    font-size: 13px !important;
+  }
+
+  .acceptance-target-card {
+    padding: 10px 12px !important;
+  }
+
+  .target-card-body {
+    font-size: 12px !important;
   }
 }
 

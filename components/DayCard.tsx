@@ -73,28 +73,31 @@ export function DayCard({
       ref={cardRef}
       className={`day-card ${isComplete ? 'complete' : ''} ${split ? 'split-card' : ''}`}
     >
-      <div className="day-card-head">
-        <div>
-          <div className="day-card-top-meta">
-            <span className="phase-pill" style={{ color: phaseMeta.color, background: phaseMeta.badgeBg }}>
+      <div className="day-card-head-modern">
+        <div className="day-card-header-top">
+          <div className="day-card-badge-row">
+            <span className="phase-badge-modern" style={{ color: phaseMeta.color, background: phaseMeta.badgeBg }}>
               {phaseMeta.icon}
               <span>{phaseMeta.label}</span>
             </span>
-            <span className="eyebrow-date">
-              WEEK {day.week} · Day {day.dayInWeek} · {formatDate(day.date)}
+            <span className="day-schedule-meta">
+              <span>Week {day.week}</span>
+              <span className="meta-dot">•</span>
+              <span>Day {day.dayInWeek}</span>
+              <span className="meta-dot">•</span>
+              <span>{formatDate(day.date)}</span>
             </span>
           </div>
 
-          <h3 className="day-card-heading">{day.title}</h3>
+          <div className="day-progress-badge">
+            <span className="progress-fraction">{done} / {day.items.length}</span>
+            <span className={`progress-pill ${isComplete ? 'completed' : ''}`}>
+              {isComplete ? 'Done' : `${percent}%`}
+            </span>
+          </div>
         </div>
 
-        {/* Circular Progress Ring with Percentage */}
-        <div className="ring-wrapper">
-          <div className="ring" style={{ '--progress': `${percent * 3.6}deg` } as CSSProperties}>
-            <span>{percent}%</span>
-          </div>
-          {isComplete && <span className="complete-badge-chip">DONE</span>}
-        </div>
+        <h3 className="day-card-title-modern">{day.title}</h3>
       </div>
 
       <div className="checklist-col">

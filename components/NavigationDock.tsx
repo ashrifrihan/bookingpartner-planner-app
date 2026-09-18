@@ -11,6 +11,7 @@ export function NavigationDock({
   toggleTheme,
   overdueCount = 0,
   memoryCount = 0,
+  onOpenAction,
 }: {
   view: PlannerNavView;
   setView: (view: PlannerNavView) => void;
@@ -18,6 +19,7 @@ export function NavigationDock({
   toggleTheme: () => void;
   overdueCount?: number;
   memoryCount?: number;
+  onOpenAction?: () => void;
 }) {
   return (
     <div className="dock-wrapper">
@@ -81,6 +83,18 @@ export function NavigationDock({
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </nav>
+
+      {onOpenAction && (
+        <button
+          type="button"
+          className="dock-fab-btn"
+          onClick={onOpenAction}
+          aria-label="Quick Daily Standup"
+          title="Daily Standup Report"
+        >
+          <PlusIcon />
+        </button>
+      )}
     </div>
   );
 }
@@ -156,6 +170,15 @@ function BrainIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-2.54Z" />
       <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-2.54Z" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   );
 }

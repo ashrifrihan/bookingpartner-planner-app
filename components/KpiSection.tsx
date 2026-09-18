@@ -176,7 +176,7 @@ export function KpiSection({
         </div>
 
         <div className="kpi-footer">
-          <span style={{ color: phaseMeta.color, fontWeight: 700 }}>{activeWeekPhase}</span>
+          <span style={{ color: phaseMeta.color, fontWeight: 600 }}>{activeWeekPhase}</span>
           <span className="trend">
             <TrendUpIcon />
             <span>Sprint Active</span>

@@ -27,7 +27,7 @@ import { DeveloperMemorySection } from './DeveloperMemory';
 import { AiPurposeAssistant } from './AiPurposeAssistant';
 import { WhatsAppReportModal } from './WhatsAppReportModal';
 import { DriftDetectorModal, WeeklyRetroModal, SparkleIcon } from './AiAssistant';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, getTaskChip } from '@/lib/visuals';
 
 function localDateString(value = new Date()): string {
   const y = value.getFullYear();
@@ -67,8 +67,13 @@ export default function Dashboard() {
 function DashboardContent() {
   // Navigation View: Home | Schedule | Tasks | Memory | AI
   const [view, setView] = useState<PlannerNavView>('home');
-  const [scheduleWeekFilter, setScheduleWeekFilter] = useState<number | 'all'>('all');
-  const [tasksFilter, setTasksFilter] = useState<'active' | 'completed' | 'overdue'>('active');
+  const [scheduleWeekFilter, setScheduleWeekFilter] = useState<number | 'all'>(1);
+  const [tasksFilter, setTasksFilter] = useState<'all' | 'active' | 'overdue' | 'completed'>('all');
+  const [directorySearch, setDirectorySearch] = useState('');
+  const [directoryPhaseFilter, setDirectoryPhaseFilter] = useState<string>('all');
+  const [directoryLimit, setDirectoryLimit] = useState(30);
+  const [todayTaskSearch, setTodayTaskSearch] = useState('');
+  const [todayTaskFilter, setTodayTaskFilter] = useState<'all' | 'pending' | 'completed'>('all');
 
   // Modals & Panels State
   const [inspectTask, setInspectTask] = useState<{ day: PlanDay; itemIndex: number } | null>(null);
@@ -198,6 +203,97 @@ function DashboardContent() {
   }, [todayPlan, states]);
 
   const todayRemainingCount = todayPlan ? todayPlan.items.length - todayCompletedCount : 0;
+
+  // Today's task items and filtered subset for iOS cards
+  const todayTasks = useMemo(() => {
+    if (!todayPlan) return [];
+    return todayPlan.items.map((item, idx) => {
+      const isDone = Boolean(states[itemKey(todayPlan.date, idx)]);
+      const chip = getTaskChip(item);
+      return {
+        item,
+        idx,
+        isDone,
+        chip,
+        key: itemKey(todayPlan.date, idx),
+      };
+    });
+  }, [todayPlan, states]);
+
+  const filteredTodayTasks = useMemo(() => {
+    return todayTasks.filter((task) => {
+      if (todayTaskFilter === 'pending' && task.isDone) return false;
+      if (todayTaskFilter === 'completed' && !task.isDone) return false;
+      if (todayTaskSearch.trim()) {
+        const q = todayTaskSearch.toLowerCase();
+        return (
+          task.item.toLowerCase().includes(q) ||
+          task.chip.label.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [todayTasks, todayTaskFilter, todayTaskSearch]);
+
+  // Engineering Directory flattened list of tasks
+  const allDirectoryTasks = useMemo(() => {
+    return plan.flatMap((day) => {
+      const dayNum = (day.week - 1) * 6 + day.dayInWeek;
+      const formattedDate = formatDate(day.date, false);
+      return day.items.map((item, itemIndex) => {
+        const key = itemKey(day.date, itemIndex);
+        const isDone = Boolean(states[key]);
+        const isOverdue = !isDone && day.date < today && taskOverrides[key]?.action !== 'unnecessary';
+        const chip = getTaskChip(item);
+        return {
+          key,
+          day,
+          itemIndex,
+          title: item,
+          isDone,
+          isOverdue,
+          chip,
+          dayNum,
+          formattedDate,
+        };
+      });
+    });
+  }, [states, today, taskOverrides]);
+
+  const directoryPhases = useMemo(() => {
+    return Array.from(new Set(plan.map((d) => d.phase)));
+  }, []);
+
+  const filteredDirectoryTasks = useMemo(() => {
+    const q = directorySearch.trim().toLowerCase();
+    return allDirectoryTasks.filter((task) => {
+      if (tasksFilter === 'active' && task.isDone) return false;
+      if (tasksFilter === 'completed' && !task.isDone) return false;
+      if (tasksFilter === 'overdue' && !task.isOverdue) return false;
+
+      if (directoryPhaseFilter !== 'all' && task.day.phase !== directoryPhaseFilter) {
+        return false;
+      }
+
+      if (q) {
+        const matchesTitle = task.title.toLowerCase().includes(q);
+        const matchesPhase = task.day.phase.toLowerCase().includes(q);
+        const matchesChip = task.chip.label.toLowerCase().includes(q);
+        const matchesDayTitle = task.day.title.toLowerCase().includes(q);
+        return matchesTitle || matchesPhase || matchesChip || matchesDayTitle;
+      }
+
+      return true;
+    });
+  }, [allDirectoryTasks, tasksFilter, directoryPhaseFilter, directorySearch]);
+
+  const directoryCounts = useMemo(() => {
+    const total = allDirectoryTasks.length;
+    const active = allDirectoryTasks.filter((t) => !t.isDone).length;
+    const overdue = allDirectoryTasks.filter((t) => t.isOverdue).length;
+    const completed = allDirectoryTasks.filter((t) => t.isDone).length;
+    return { total, active, overdue, completed };
+  }, [allDirectoryTasks]);
 
   // Blocked tasks count
   const blockedCount = useMemo(() => {
@@ -413,95 +509,125 @@ function DashboardContent() {
             onOpenCatchUp={() => setActiveCatchUpDay(yesterdayMissed)}
           />
 
-          {/* Flow Canvas: Top Project Pill & Connector */}
-          <div className="flow-canvas-top">
-            <div className="flow-client-pill">
-              <span className="client-indicator-dot" />
-              <span className="client-title">Project: <strong>BookingPartner</strong></span>
-              <span className="flow-pill-separator">•</span>
-              <span className="client-phase">Phase: <strong>{todayPlan?.phase || 'Foundation'}</strong></span>
-              <span className="flow-pill-separator">•</span>
-              <span className="client-timeline">{formatDate(today, true)}</span>
+          {/* iOS-Style Clean Page Header (Matching Reference Design) */}
+          <div className="ios-page-header">
+            <div className="ios-header-left">
+              <div className="ios-title-row">
+                <h1 className="ios-page-title">Today</h1>
+                <span className="ios-count-badge">
+                  {todayCompletedCount} of {todayTasks.length} Done
+                </span>
+              </div>
+              <p className="ios-page-subtitle">
+                {todayPlan?.phase || 'Foundation'} · Sprint Day {todayPlan ? (todayPlan.week - 1) * 6 + todayPlan.dayInWeek : 1} of 30
+              </p>
             </div>
-            <div className="flow-stem-connector" />
+            <div className="ios-header-right">
+              <span className="ios-date-badge">{formatDate(today, false)}</span>
+            </div>
           </div>
 
-          {/* Central Task Node Card (matching reference design) */}
-          <div className="flow-node-card central-task-node">
-            <div className="flow-card-header">
-              <div className="flow-header-left">
-                <div className="flow-node-badge">
-                  <span>TODAY&apos;S MAIN DELIVERABLE</span>
-                </div>
-                <h2 className="flow-deliverable-title">{todayPlan?.title}</h2>
-                <div className="flow-assignee-meta">
-                  <span className="meta-avatar">DV</span>
-                  <span className="meta-text">Assigned to: <strong>Lead Developer</strong></span>
-                  <span className="meta-separator">•</span>
-                  <span className="meta-text">Sprint Day {todayPlan ? (todayPlan.week - 1) * 6 + todayPlan.dayInWeek : 1} of 30</span>
-                </div>
-              </div>
-
-              {/* Progress Fraction & Remaining Metric */}
-              <div className="flow-header-right">
-                <div className="flow-progress-cluster">
-                  <div className="progress-fraction-badge">
-                    <span className="fraction-label">Progress:</span>
-                    <strong>{todayCompletedCount} / {todayPlan ? todayPlan.items.length : 0}</strong>
-                  </div>
-                  {todayRemainingCount > 0 ? (
-                    <span className="remaining-alert-pill">
-                      {todayRemainingCount} remaining
-                    </span>
-                  ) : (
-                    <span className="all-completed-pill">
-                      All completed for today
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Tech-Stack Mini Badge Row (matching reference image) */}
-            <div className="flow-techstack-bar">
-              <span className="techstack-title">Tech-Stack</span>
-              <div className="techstack-pills-list">
-                <span className="flow-tech-chip">Next.js 15</span>
-                <span className="flow-tech-chip">Prisma</span>
-                <span className="flow-tech-chip">NextAuth</span>
-                <span className="flow-tech-chip">PostgreSQL</span>
-                <span className="flow-tech-chip">TypeScript</span>
-                <span className="flow-tech-chip">Tailwind</span>
-              </div>
-            </div>
-
-            {/* Quick Action Pills Strip */}
-            <div className="flow-action-pills-row">
+          {/* Search Bar with Magnifying Glass & Clear */}
+          <div className="ios-search-bar">
+            <svg className="ios-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 19l-4.35-4.35M17 9A8 8 0 1 1 1 9a8 8 0 0 1 16 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search today's tasks..."
+              value={todayTaskSearch}
+              onChange={(e) => setTodayTaskSearch(e.target.value)}
+              className="ios-search-input"
+            />
+            {todayTaskSearch && (
               <button
                 type="button"
-                className="flow-pill-action primary"
+                className="ios-search-clear"
+                onClick={() => setTodayTaskSearch('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* Filter Pills (All / Pending / Completed / Standup Report) */}
+          <div className="ios-filter-pills-row">
+            <button
+              type="button"
+              className={`ios-filter-pill ${todayTaskFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setTodayTaskFilter('all')}
+            >
+              All ({todayTasks.length})
+            </button>
+            <button
+              type="button"
+              className={`ios-filter-pill ${todayTaskFilter === 'pending' ? 'active' : ''}`}
+              onClick={() => setTodayTaskFilter('pending')}
+            >
+              Pending ({todayTasks.length - todayCompletedCount})
+            </button>
+            <button
+              type="button"
+              className={`ios-filter-pill ${todayTaskFilter === 'completed' ? 'active' : ''}`}
+              onClick={() => setTodayTaskFilter('completed')}
+            >
+              Completed ({todayCompletedCount})
+            </button>
+            <button
+              type="button"
+              className="ios-filter-pill action-pill"
+              onClick={() => setWhatsappModalOpen(true)}
+            >
+              Standup Report
+            </button>
+          </div>
+
+          {/* Deliverable Progress Card */}
+          <div className="ios-deliverable-card">
+            <div className="ios-deliverable-top">
+              <div>
+                <span className="ios-deliverable-kicker">TODAY&apos;S MAIN DELIVERABLE</span>
+                <h2 className="ios-deliverable-title">{todayPlan?.title}</h2>
+              </div>
+              <div className="ios-progress-percent">
+                {todayTasks.length > 0 ? Math.round((todayCompletedCount / todayTasks.length) * 100) : 0}%
+              </div>
+            </div>
+            <div className="ios-progress-track">
+              <div
+                className="ios-progress-fill"
+                style={{
+                  width: `${todayTasks.length > 0 ? (todayCompletedCount / todayTasks.length) * 100 : 0}%`,
+                }}
+              />
+            </div>
+            <div className="ios-deliverable-actions">
+              <button
+                type="button"
+                className="ios-mini-action-btn primary"
                 onClick={() => setWhatsappModalOpen(true)}
               >
                 Standup Report
               </button>
               <button
                 type="button"
-                className="flow-pill-action"
+                className="ios-mini-action-btn"
                 onClick={() => setEodModalOpen(true)}
               >
                 End Day Review
               </button>
               <button
                 type="button"
-                className="flow-pill-action"
+                className="ios-mini-action-btn"
                 onClick={() => setView('memory')}
               >
-                Developer Memory ({memoryNotes.length})
+                Memory ({memoryNotes.length})
               </button>
               {yesterdayMissed && yesterdayIncompleteTasks.length > 0 && (
                 <button
                   type="button"
-                  className="flow-pill-action warning"
+                  className="ios-mini-action-btn warning"
                   onClick={() => setActiveCatchUpDay(yesterdayMissed)}
                 >
                   Catch Up ({yesterdayIncompleteTasks.length})
@@ -510,132 +636,143 @@ function DashboardContent() {
             </div>
           </div>
 
-          {/* Bento Grid: Today's Tasks + AI Suggestion */}
-          <div className="dashboard-main-grid">
-            {/* Left Column: Today's Active Tasks */}
-            <div className="dashboard-tasks-col">
-              <div className="section-head-bar flow-subtasks-head">
-                <div>
-                  <span className="flow-subtasks-badge">SUBTASKS: LIST BELOW</span>
-                  <h3>Today&apos;s Implementation</h3>
-                </div>
-                <span className="section-meta-chip">
-                  Select subtask to inspect What, Why, and Guidance
-                </span>
-              </div>
+          {/* Today's Tasks List (matching reference invoice cards from uploaded image) */}
+          <div className="ios-task-list">
+            {filteredTodayTasks.map((task) => (
+              <div className={`ios-task-card ${task.isDone ? 'done' : ''}`} key={task.key}>
+                <div className="ios-card-top-row">
+                  <button
+                    type="button"
+                    className={`ios-checkbox-btn ${task.isDone ? 'checked' : ''}`}
+                    onClick={() => todayPlan && toggleItem(todayPlan, task.idx)}
+                    aria-label={task.isDone ? 'Mark task as incomplete' : 'Mark task as complete'}
+                  >
+                    {task.isDone && (
+                      <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+                        <path d="M13.485 3.515a1 1 0 0 1 0 1.414l-6.364 6.364a1 1 0 0 1-1.414 0L2.515 8.1a1 1 0 0 1 1.414-1.414l2.478 2.478 5.657-5.657a1 1 0 0 1 1.414 0z" />
+                      </svg>
+                    )}
+                  </button>
 
-              {todayPlan && (
-                <DayCard
-                  day={todayPlan}
-                  states={states}
-                  onToggle={toggleItem}
-                  notes={notes}
-                  blocked={blocked}
-                  onSaveText={saveDayText}
-                  onOpenTaskDetail={(day, idx) => setInspectTask({ day, itemIndex: idx })}
-                  split={false}
-                />
+                  <div className="ios-card-title-col">
+                    <h3 className="ios-task-title">{task.item}</h3>
+                    <div className="ios-task-meta-row">
+                      <span className={`ios-chip ${task.chip.type}`}>{task.chip.label}</span>
+                      <span className="ios-meta-dot">•</span>
+                      <span className="ios-task-step">Task {task.idx + 1} of {todayTasks.length}</span>
+                    </div>
+                  </div>
+
+                  <div className="ios-card-index-badge">#{task.idx + 1}</div>
+                </div>
+
+                <div className="ios-card-divider" />
+
+                <div className="ios-card-bottom-row">
+                  <div className="ios-status-indicator">
+                    {task.isDone ? (
+                      <span className="ios-status-pill completed">
+                        <span className="status-dot" />
+                        Completed
+                      </span>
+                    ) : (
+                      <span className="ios-status-pill pending">
+                        <span className="status-dot" />
+                        Pending
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="ios-card-details-btn"
+                    onClick={() => todayPlan && setInspectTask({ day: todayPlan, itemIndex: task.idx })}
+                  >
+                    <span>Details</span>
+                    <ArrowRightIcon size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {filteredTodayTasks.length === 0 && (
+              <div className="ios-empty-state">
+                <p>No tasks match your search or filter.</p>
+                <button
+                  type="button"
+                  className="ios-empty-reset"
+                  onClick={() => {
+                    setTodayTaskSearch('');
+                    setTodayTaskFilter('all');
+                  }}
+                >
+                  Reset filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Contextual AI Schedule Guidance */}
+          <div className="ios-ai-guidance-card">
+            <div className="ios-ai-head">
+              <div className="ios-ai-title-wrap">
+                <span className="ios-ai-pulse" />
+                <strong>AI Schedule Guidance</strong>
+              </div>
+              <button
+                type="button"
+                className="ios-ai-open-btn"
+                onClick={() => setView('ai')}
+              >
+                <span>Open Assistant</span>
+                <ArrowRightIcon size={11} />
+              </button>
+            </div>
+            <div className="ios-ai-body">
+              {yesterdayIncompleteTasks.length > 0 ? (
+                <p>
+                  You have {yesterdayIncompleteTasks.length} unfinished task
+                  {yesterdayIncompleteTasks.length > 1 ? 's' : ''} from yesterday.
+                  Finish <strong>{yesterdayIncompleteTasks[0]?.item}</strong> first because today&apos;s{' '}
+                  <strong>{todayPlan?.title}</strong> depends on it.
+                </p>
+              ) : (
+                <p>
+                  Yesterday&apos;s milestones were completed cleanly. Focus today on{' '}
+                  <strong>{todayPlan?.title}</strong> to keep the {todayPlan?.phase} roadmap on schedule.
+                </p>
               )}
             </div>
+          </div>
 
-            {/* Right Column: Contextual AI Suggestion + Memory Rules */}
-            <div className="dashboard-sidebar-col">
-              {/* Contextual AI Suggestion Card */}
-              <div className="ai-context-card">
-                <div className="ai-context-head">
-                  <strong style={{ fontSize: '13px', letterSpacing: '0.02em' }}>AI Schedule Guidance</strong>
-                  <span className="ai-realtime-badge">ACTIVE</span>
-                </div>
-
-                <div className="ai-context-body">
-                  {yesterdayIncompleteTasks.length > 0 ? (
-                    <p>
-                      You have {yesterdayIncompleteTasks.length} unfinished task
-                      {yesterdayIncompleteTasks.length > 1 ? 's' : ''} from yesterday.
-                      Finish <strong>{yesterdayIncompleteTasks[0]?.item}</strong> first because today&apos;s{' '}
-                      <strong>{todayPlan?.title}</strong> depends on it.
-                    </p>
-                  ) : (
-                    <p>
-                      Yesterday&apos;s milestones were completed cleanly. Focus today on{' '}
-                      <strong>{todayPlan?.title}</strong> to keep the {todayPlan?.phase} roadmap on track.
-                    </p>
-                  )}
-                </div>
-
-                <div className="ai-context-actions">
-                  <button
-                    type="button"
-                    className="ai-tiny-btn"
-                    onClick={() => setView('ai')}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
-                  >
-                    <span>Open AI Copilot</span>
-                    <ArrowRightIcon size={11} />
-                  </button>
-                </div>
+          {/* Developer Memory Snapshot */}
+          <div className="ios-memory-preview-card">
+            <div className="ios-memory-head">
+              <div>
+                <span className="ios-deliverable-kicker">DEVELOPER MEMORY</span>
+                <strong>Rules &amp; Decisions ({memoryNotes.length})</strong>
               </div>
-
-              {/* High-Impact Developer Memory Widget */}
-              <div className="memory-widget-card">
-                <div className="memory-widget-head">
-                  <strong>Developer Memory</strong>
-                  <button
-                    type="button"
-                    className="widget-link-btn"
-                    onClick={() => setView('memory')}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
-                  >
-                    <span>Manage ({memoryNotes.length})</span>
-                    <ArrowRightIcon size={11} />
-                  </button>
+              <button
+                type="button"
+                className="ios-card-details-btn"
+                onClick={() => setView('memory')}
+              >
+                <span>Manage</span>
+                <ArrowRightIcon size={11} />
+              </button>
+            </div>
+            <div className="ios-memory-list">
+              {memoryNotes.slice(0, 3).map((note) => (
+                <div key={note.id} className="ios-memory-row">
+                  <span className={`ios-memory-tag ${note.category}`}>{note.category}</span>
+                  <span className="ios-memory-text">{note.text}</span>
                 </div>
-
-                <ul className="memory-bullets-list">
-                  {memoryNotes.slice(0, 4).map((m) => (
-                    <li key={m.id}>
-                      <span className={`memory-bullet-cat ${m.category}`}>•</span>
-                      <span>{m.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Progress Summary Card */}
-              <div className="progress-summary-card">
-                <div className="progress-card-title">
-                  <span>Overall Delivery Progress</span>
-                  <strong style={{ color: 'var(--purple-brand)', fontSize: '16px' }}>{overallPercent}%</strong>
-                </div>
-
-                <div className="progress-bar-track">
-                  <div className="progress-bar-fill" style={{ width: `${overallPercent}%` }} />
-                </div>
-
-                <div className="progress-numbers-grid">
-                  <div className="metric-box">
-                    <span>Completed</span>
-                    <strong>{completedCount}</strong>
-                  </div>
-                  <div className="metric-box">
-                    <span>Remaining</span>
-                    <strong>{totalCount - completedCount}</strong>
-                  </div>
-                  <div className="metric-box alert">
-                    <span>Overdue</span>
-                    <strong>{overdueCount}</strong>
-                  </div>
-                  <div className="metric-box warn">
-                    <span>Blocked</span>
-                    <strong>{blockedCount}</strong>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Full KPI Section (Finnova Overview) */}
-          <div style={{ marginTop: '28px' }}>
+          <div className="desktop-kpi-wrap" style={{ marginTop: '28px' }}>
             <KpiSection
               overallPercent={overallPercent}
               completedCount={completedCount}
@@ -664,37 +801,52 @@ function DashboardContent() {
       {/* ========================================================================= */}
       {/* VIEW 2: SCHEDULE (Complete development plan with previous & future days)   */}
       {/* ========================================================================= */}
+      {/* ========================================================================= */}
+      {/* VIEW 2: SCHEDULE (Clean, Mobile-Optimized Complete Development Plan)      */}
+      {/* ========================================================================= */}
       {view === 'schedule' && (
-        <div className="schedule-view">
-          <div className="schedule-view-header">
-            <div>
-              <h2>Complete Development Plan</h2>
-              <p>84 Days · 12 Weeks · Open any previous or future day.</p>
+        <div className="ios-schedule-view">
+          {/* Header */}
+          <div className="ios-page-header">
+            <div className="ios-header-left">
+              <div className="ios-title-row">
+                <h1 className="ios-page-title">Schedule</h1>
+                <span className="ios-count-badge">
+                  30 Days · 12 Weeks
+                </span>
+              </div>
+              <p className="ios-page-subtitle">
+                Complete development plan. Select any week to focus or view all.
+              </p>
             </div>
-
-            {/* Week Jumper */}
-            <div className="week-jumper-pills">
-              <button
-                type="button"
-                className={scheduleWeekFilter === 'all' ? 'active' : ''}
-                onClick={() => setScheduleWeekFilter('all')}
-              >
-                All 12 Weeks
-              </button>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
-                <button
-                  key={w}
-                  type="button"
-                  className={scheduleWeekFilter === w ? 'active' : ''}
-                  onClick={() => setScheduleWeekFilter(w)}
-                >
-                  W{w}
-                </button>
-              ))}
+            <div className="ios-header-right">
+              <span className="ios-date-badge">Today: {formatDate(today, false)}</span>
             </div>
           </div>
 
-          <div className="schedule-weeks-container">
+          {/* Week Selector Pills (Horizontal Scroll Strip) */}
+          <div className="ios-week-selector-strip">
+            <button
+              type="button"
+              className={`ios-week-pill ${scheduleWeekFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setScheduleWeekFilter('all')}
+            >
+              All Weeks
+            </button>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
+              <button
+                key={w}
+                type="button"
+                className={`ios-week-pill ${scheduleWeekFilter === w ? 'active' : ''}`}
+                onClick={() => setScheduleWeekFilter(w)}
+              >
+                Week {w}
+              </button>
+            ))}
+          </div>
+
+          {/* Weeks List */}
+          <div className="ios-weeks-list">
             {Array.from({ length: 12 }, (_, i) => i + 1)
               .filter((w) => scheduleWeekFilter === 'all' || scheduleWeekFilter === w)
               .map((week) => {
@@ -702,20 +854,34 @@ function DashboardContent() {
                 if (!days.length) return null;
                 const keys = days.flatMap((day) => day.items.map((_, index) => itemKey(day.date, index)));
                 const done = keys.filter((key) => states[key]).length;
-                const percent = Math.round((done / keys.length) * 100);
+                const percent = keys.length ? Math.round((done / keys.length) * 100) : 0;
 
                 return (
-                  <section key={week} className="week-section">
-                    <div className="week-heading">
-                      <div>
-                        <p className="eyebrow">WEEK {week}</p>
-                        <h2>{days[0].phase}</h2>
-                        <p>{formatDate(days[0].date)} to {formatDate(days[days.length - 1].date)}</p>
+                  <section key={week} className="ios-week-block">
+                    {/* Week Milestone Header */}
+                    <div className="ios-week-card-head">
+                      <div className="ios-week-meta-col">
+                        <span className="ios-week-kicker">WEEK {week} OF 12</span>
+                        <h2 className="ios-week-title">{days[0].phase}</h2>
+                        <span className="ios-week-dates">
+                          {formatDate(days[0].date)} to {formatDate(days[days.length - 1].date)}
+                        </span>
                       </div>
-                      <strong>{percent}%</strong>
+                      <div className="ios-week-stat">
+                        <span className="ios-week-fraction">{done} / {keys.length}</span>
+                        <span className={`ios-week-pill-badge ${percent === 100 ? 'done' : ''}`}>
+                          {percent}%
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="day-grid multi-col">
+                    {/* Week Progress Bar */}
+                    <div className="ios-progress-track" style={{ marginBottom: '16px' }}>
+                      <div className="ios-progress-fill" style={{ width: `${percent}%` }} />
+                    </div>
+
+                    {/* Days Stack (1 column, mobile-perfect) */}
+                    <div className="ios-days-stack">
                       {days.map((day) => (
                         <DayCard
                           key={day.date}
@@ -726,7 +892,8 @@ function DashboardContent() {
                           blocked={blocked}
                           onSaveText={saveDayText}
                           onOpenTaskDetail={(d, idx) => setInspectTask({ day: d, itemIndex: idx })}
-                          compact
+                          compact={true}
+                          split={false}
                         />
                       ))}
                     </div>
@@ -738,64 +905,250 @@ function DashboardContent() {
       )}
 
       {/* ========================================================================= */}
-      {/* VIEW 3: TASKS (Active, Completed, Overdue task breakdown)                 */}
+      {/* VIEW 3: TASKS (Clean Engineering Tasks Directory)                         */}
       {/* ========================================================================= */}
       {view === 'tasks' && (
-        <div className="tasks-view">
-          <div className="tasks-view-header">
-            <div>
-              <h2>Engineering Tasks Directory</h2>
-              <p>Filter active, completed, or overdue tasks with progressive disclosure.</p>
+        <div className="tasks-directory-view">
+          {/* Header */}
+          <div className="ios-page-header">
+            <div className="ios-header-left">
+              <div className="ios-title-row">
+                <h1 className="ios-page-title">Tasks Directory</h1>
+                <span className="ios-count-badge">
+                  {directoryCounts.completed} of {directoryCounts.total} Done
+                </span>
+              </div>
+              <p className="ios-page-subtitle">
+                Search, filter, and inspect all 170 sprint deliverables
+              </p>
             </div>
-
-            <div className="tasks-filter-pills">
-              <button
-                type="button"
-                className={tasksFilter === 'active' ? 'active' : ''}
-                onClick={() => setTasksFilter('active')}
-              >
-                Active Tasks
-              </button>
-              <button
-                type="button"
-                className={tasksFilter === 'overdue' ? 'active' : ''}
-                onClick={() => setTasksFilter('overdue')}
-              >
-                Overdue ({overdueCount})
-              </button>
-              <button
-                type="button"
-                className={tasksFilter === 'completed' ? 'active' : ''}
-                onClick={() => setTasksFilter('completed')}
-              >
-                Completed ({completedCount})
-              </button>
+            <div className="ios-header-right">
+              <span className="ios-date-badge">Sprint: 30 Days</span>
             </div>
           </div>
 
-          <div className="tasks-feed-container">
-            {plan
-              .filter((day) => {
-                if (tasksFilter === 'active') return day.items.some((_, idx) => !states[itemKey(day.date, idx)]);
-                if (tasksFilter === 'completed') return day.items.every((_, idx) => states[itemKey(day.date, idx)]);
-                if (tasksFilter === 'overdue') {
-                  return day.date < today && day.items.some((_, idx) => !states[itemKey(day.date, idx)]);
-                }
-                return true;
-              })
-              .map((day) => (
-                <DayCard
-                  key={day.date}
-                  day={day}
-                  states={states}
-                  onToggle={toggleItem}
-                  notes={notes}
-                  blocked={blocked}
-                  onSaveText={saveDayText}
-                  onOpenTaskDetail={(d, idx) => setInspectTask({ day: d, itemIndex: idx })}
-                />
-              ))}
+          {/* Search Bar */}
+          <div className="ios-search-bar">
+            <svg className="ios-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 19l-4.35-4.35M17 9A8 8 0 1 1 1 9a8 8 0 0 1 16 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by task title, API, schema, or phase..."
+              value={directorySearch}
+              onChange={(e) => {
+                setDirectorySearch(e.target.value);
+                setDirectoryLimit(30);
+              }}
+              className="ios-search-input"
+            />
+            {directorySearch && (
+              <button
+                type="button"
+                className="ios-search-clear"
+                onClick={() => setDirectorySearch('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
           </div>
+
+          {/* Status Filter Pills Row */}
+          <div className="ios-filter-pills-row">
+            <button
+              type="button"
+              className={`ios-filter-pill ${tasksFilter === 'all' ? 'active' : ''}`}
+              onClick={() => {
+                setTasksFilter('all');
+                setDirectoryLimit(30);
+              }}
+            >
+              All ({directoryCounts.total})
+            </button>
+            <button
+              type="button"
+              className={`ios-filter-pill ${tasksFilter === 'active' ? 'active' : ''}`}
+              onClick={() => {
+                setTasksFilter('active');
+                setDirectoryLimit(30);
+              }}
+            >
+              Active ({directoryCounts.active})
+            </button>
+            <button
+              type="button"
+              className={`ios-filter-pill ${tasksFilter === 'overdue' ? 'active' : ''}`}
+              onClick={() => {
+                setTasksFilter('overdue');
+                setDirectoryLimit(30);
+              }}
+            >
+              Overdue ({directoryCounts.overdue})
+            </button>
+            <button
+              type="button"
+              className={`ios-filter-pill ${tasksFilter === 'completed' ? 'active' : ''}`}
+              onClick={() => {
+                setTasksFilter('completed');
+                setDirectoryLimit(30);
+              }}
+            >
+              Completed ({directoryCounts.completed})
+            </button>
+          </div>
+
+          {/* Phase Filter Row (scrollable horizontal pills) */}
+          <div className="directory-phase-pills-row">
+            <button
+              type="button"
+              className={`phase-filter-pill ${directoryPhaseFilter === 'all' ? 'active' : ''}`}
+              onClick={() => {
+                setDirectoryPhaseFilter('all');
+                setDirectoryLimit(30);
+              }}
+            >
+              All Phases
+            </button>
+            {directoryPhases.map((phase) => (
+              <button
+                type="button"
+                key={phase}
+                className={`phase-filter-pill ${directoryPhaseFilter === phase ? 'active' : ''}`}
+                onClick={() => {
+                  setDirectoryPhaseFilter(phase);
+                  setDirectoryLimit(30);
+                }}
+              >
+                {phase}
+              </button>
+            ))}
+          </div>
+
+          {/* Filter Status Summary */}
+          <div className="directory-results-meta">
+            <span>
+              Showing {Math.min(directoryLimit, filteredDirectoryTasks.length)} of {filteredDirectoryTasks.length} task{filteredDirectoryTasks.length === 1 ? '' : 's'}
+            </span>
+            {(directorySearch || tasksFilter !== 'all' || directoryPhaseFilter !== 'all') && (
+              <button
+                type="button"
+                className="directory-reset-link"
+                onClick={() => {
+                  setDirectorySearch('');
+                  setTasksFilter('all');
+                  setDirectoryPhaseFilter('all');
+                  setDirectoryLimit(30);
+                }}
+              >
+                Reset filters
+              </button>
+            )}
+          </div>
+
+          {/* Individual Task Cards (matching reference image media_1789766927628.png) */}
+          <div className="ios-task-list">
+            {filteredDirectoryTasks.slice(0, directoryLimit).map((task) => (
+              <div className={`ios-task-card ${task.isDone ? 'done' : ''}`} key={task.key}>
+                <div className="ios-card-top-row">
+                  <button
+                    type="button"
+                    className={`ios-checkbox-btn ${task.isDone ? 'checked' : ''}`}
+                    onClick={() => toggleItem(task.day, task.itemIndex)}
+                    aria-label={task.isDone ? 'Mark task as incomplete' : 'Mark task as complete'}
+                  >
+                    {task.isDone && (
+                      <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12">
+                        <path d="M13.485 3.515a1 1 0 0 1 0 1.414l-6.364 6.364a1 1 0 0 1-1.414 0L2.515 8.1a1 1 0 0 1 1.414-1.414l2.478 2.478 5.657-5.657a1 1 0 0 1 1.414 0z" />
+                      </svg>
+                    )}
+                  </button>
+
+                  <div className="ios-card-title-col">
+                    <h3 className="ios-task-title">{task.title}</h3>
+                    <div className="ios-task-meta-row">
+                      <span className={`ios-chip ${task.chip.type}`}>{task.chip.label}</span>
+                      <span className="ios-meta-dot">•</span>
+                      <span className="ios-task-step">{task.day.phase} · Day {task.dayNum}</span>
+                    </div>
+                  </div>
+
+                  <div className="ios-card-index-badge">{task.formattedDate}</div>
+                </div>
+
+                <div className="ios-card-divider" />
+
+                <div className="ios-card-bottom-row">
+                  <div className="ios-status-indicator">
+                    {task.isDone ? (
+                      <span className="ios-status-pill completed">
+                        <span className="status-dot" />
+                        Completed
+                      </span>
+                    ) : task.isOverdue ? (
+                      <span className="ios-status-pill overdue">
+                        <span className="status-dot" />
+                        Overdue
+                      </span>
+                    ) : (
+                      <span className="ios-status-pill pending">
+                        <span className="status-dot" />
+                        Pending
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="ios-card-details-btn"
+                    onClick={() => setInspectTask({ day: task.day, itemIndex: task.itemIndex })}
+                  >
+                    <span>Details</span>
+                    <ArrowRightIcon size={12} />
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {filteredDirectoryTasks.length === 0 && (
+              <div className="ios-empty-state">
+                <p>No tasks match your search or filter.</p>
+                <button
+                  type="button"
+                  className="ios-empty-reset"
+                  onClick={() => {
+                    setDirectorySearch('');
+                    setTasksFilter('all');
+                    setDirectoryPhaseFilter('all');
+                    setDirectoryLimit(30);
+                  }}
+                >
+                  Reset filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Load More Pagination */}
+          {filteredDirectoryTasks.length > directoryLimit && (
+            <div className="directory-load-more-row">
+              <button
+                type="button"
+                className="directory-load-more-btn"
+                onClick={() => setDirectoryLimit((prev) => prev + 30)}
+              >
+                <span>Load More Tasks ({filteredDirectoryTasks.length - directoryLimit} remaining)</span>
+                <ArrowRightIcon size={12} />
+              </button>
+              <button
+                type="button"
+                className="directory-show-all-btn"
+                onClick={() => setDirectoryLimit(filteredDirectoryTasks.length)}
+              >
+                Show All ({filteredDirectoryTasks.length})
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -926,6 +1279,7 @@ function DashboardContent() {
         toggleTheme={toggleTheme}
         overdueCount={overdueCount}
         memoryCount={memoryNotes.length}
+        onOpenAction={() => setWhatsappModalOpen(true)}
       />
 
       <footer>
