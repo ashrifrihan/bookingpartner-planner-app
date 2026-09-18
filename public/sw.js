@@ -1,4 +1,4 @@
-const CACHE = 'bp-planner-v4';
+const CACHE = 'bp-planner-v5';
 const APP_SHELL = ['/', '/bookingpartner.png'];
 
 self.addEventListener('install', (event) => {
