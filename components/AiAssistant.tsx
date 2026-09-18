@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import {
   requestPlanAssist,
-  formatWhatsAppReport,
-  formatMorningPlanReport,
-  formatOverdueAlertReport,
   type AiResponse,
 } from '@/lib/ai';
+import {
+  getTaskChip,
+  TargetCrosshairIcon,
+  AlertOctagonIcon,
+  GaugeIcon,
+  NotebookIcon,
+  CheckCircleIcon,
+} from '@/lib/visuals';
 
 export function DailyBriefCard({
   todayDate,
@@ -194,273 +200,6 @@ export function BlockerSuggestionWidget({
   );
 }
 
-export function WhatsAppModal({
-  isOpen,
-  onClose,
-  reportData,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  reportData: Parameters<typeof formatWhatsAppReport>[0] & {
-    yesterdayCompletedCount?: number;
-    overdueTasksList?: { title: string; daysOverdue: number }[];
-  };
-}) {
-  const [copied, setCopied] = useState<boolean>(false);
-  const [reportType, setReportType] = useState<'evening' | 'morning' | 'alert'>('evening');
-  const [phone, setPhone] = useState<string>('');
-  const [savedBadge, setSavedBadge] = useState<boolean>(false);
-  const [sendingApi, setSendingApi] = useState<boolean>(false);
-  const [apiNotice, setApiNotice] = useState<{ text: string; error?: boolean } | null>(null);
-  const [showSchedulerInfo, setShowSchedulerInfo] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('bp-whatsapp-target-phone') || '';
-      setPhone(saved);
-    }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handlePhoneChange = (val: string) => {
-    setPhone(val);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('bp-whatsapp-target-phone', val);
-      setSavedBadge(true);
-      setTimeout(() => setSavedBadge(false), 2000);
-    }
-  };
-
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
-
-  let messageText = '';
-  if (reportType === 'morning') {
-    messageText = formatMorningPlanReport({
-      dateFormatted: reportData.dateFormatted,
-      taskCount: reportData.todayItems.length,
-      yesterdayCompleted: reportData.yesterdayCompletedCount ?? 0,
-      blockersCount: reportData.blockersText ? 1 : 0,
-      focusTitle: reportData.todayTitle,
-      todayItems: reportData.todayItems.map((i) => i.text),
-    });
-  } else if (reportType === 'alert') {
-    messageText = formatOverdueAlertReport({
-      overdueTasks:
-        reportData.overdueTasksList && reportData.overdueTasksList.length > 0
-          ? reportData.overdueTasksList
-          : [{ title: reportData.todayTitle, daysOverdue: 1 }],
-      aiSuggestion: reportData.aiSummaryText,
-    });
-  } else {
-    messageText = formatWhatsAppReport(reportData);
-  }
-
-  const whatsappUrl = cleanPhone
-    ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(messageText)}`
-    : `https://api.whatsapp.com/send?text=${encodeURIComponent(messageText)}`;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(messageText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleSendViaApi = async () => {
-    if (!cleanPhone) {
-      setApiNotice({ text: 'Please enter a target phone number first.', error: true });
-      return;
-    }
-    setSendingApi(true);
-    setApiNotice(null);
-
-    try {
-      const res = await fetch('/api/whatsapp-send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: cleanPhone, message: messageText }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setApiNotice({
-          text: `✓ Message dispatched automatically via ${data.provider} to +${cleanPhone}!`,
-          error: false,
-        });
-      } else {
-        setApiNotice({
-          text: data.hint || data.error || 'Automated dispatch not configured yet.',
-          error: true,
-        });
-      }
-    } catch (e: any) {
-      setApiNotice({ text: e.message || 'Failed to trigger WhatsApp API route.', error: true });
-    }
-    setSendingApi(false);
-  };
-
-  return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <WhatsAppIcon />
-            <h3 style={{ margin: 0 }}>WhatsApp Project Dispatcher</h3>
-          </div>
-          <button type="button" className="modal-close-btn" onClick={onClose}>
-            ×
-          </button>
-        </div>
-
-        <p className="muted" style={{ margin: '4px 0 14px', fontSize: '13px' }}>
-          Format and dispatch daily progress, morning briefs, or overdue alerts to your target number.
-        </p>
-
-        {/* Target Phone Number Input with LocalStorage persistence */}
-        <div className="whatsapp-phone-box">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <label htmlFor="target-phone-input" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink-secondary)' }}>
-              Target WhatsApp Number:
-            </label>
-            {savedBadge && <span className="saved-badge">✓ Saved to App</span>}
-          </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
-              id="target-phone-input"
-              type="tel"
-              className="whatsapp-phone-input"
-              placeholder="e.g. +94771234567 or +15551234567"
-              value={phone}
-              onChange={(e) => handlePhoneChange(e.target.value)}
-            />
-            {cleanPhone && (
-              <span style={{ fontSize: '11px', color: 'var(--green-emerald)', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                +{cleanPhone}
-              </span>
-            )}
-          </div>
-          <span style={{ fontSize: '11px', color: 'var(--ink-muted)', marginTop: '4px', display: 'block' }}>
-            Include country code without spaces or dashes. Saved automatically in this browser.
-          </span>
-        </div>
-
-        {/* Report Type Selector Pills */}
-        <div className="whatsapp-type-tabs">
-          <button
-            type="button"
-            className={`whatsapp-tab-pill ${reportType === 'evening' ? 'active' : ''}`}
-            onClick={() => setReportType('evening')}
-          >
-            📊 Evening Progress (8 PM)
-          </button>
-          <button
-            type="button"
-            className={`whatsapp-tab-pill ${reportType === 'morning' ? 'active' : ''}`}
-            onClick={() => setReportType('morning')}
-          >
-            ☀️ Morning Plan (8 AM)
-          </button>
-          <button
-            type="button"
-            className={`whatsapp-tab-pill ${reportType === 'alert' ? 'active' : ''}`}
-            onClick={() => setReportType('alert')}
-          >
-            ⚠️ Overdue Alert
-          </button>
-        </div>
-
-        {/* Message Preview Textarea */}
-        <textarea
-          readOnly
-          value={messageText}
-          className="whatsapp-preview-area"
-          rows={10}
-        />
-
-        {/* Action Status Notice */}
-        {apiNotice && (
-          <div className={`ai-notice-box ${apiNotice.error ? 'error' : 'success'}`}>
-            <span>{apiNotice.text}</span>
-          </div>
-        )}
-
-        {/* Primary Action Buttons */}
-        <div className="modal-actions-row">
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={handleCopy}
-            style={{ flex: 1, justifyContent: 'center' }}
-          >
-            {copied ? '✓ Copied' : 'Copy Text'}
-          </button>
-
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={handleSendViaApi}
-            disabled={sendingApi}
-            style={{ flex: 1, justifyContent: 'center' }}
-            title="Send in background via Twilio or Meta Cloud API"
-          >
-            {sendingApi ? <LoadingSpinner /> : <SparkleIcon />}
-            <span>{sendingApi ? 'Sending…' : 'Send via API'}</span>
-          </button>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="primary-button"
-            style={{
-              flex: 1.3,
-              marginTop: 0,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              textDecoration: 'none',
-              background: '#25D366',
-              color: '#000000',
-              fontWeight: 800,
-            }}
-          >
-            <WhatsAppIcon />
-            <span>Open WhatsApp</span>
-          </a>
-        </div>
-
-        {/* Scheduled Automation Info Accordion */}
-        <div style={{ marginTop: '16px', borderTop: '1px solid var(--line-subtle)', paddingTop: '12px' }}>
-          <button
-            type="button"
-            className="ai-text-btn"
-            style={{ padding: 0, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
-            onClick={() => setShowSchedulerInfo(!showSchedulerInfo)}
-          >
-            <span>{showSchedulerInfo ? '▼' : '►'} Automatic Daily Scheduler Setup (Laptop OFF)</span>
-          </button>
-
-          {showSchedulerInfo && (
-            <div style={{ marginTop: '8px', fontSize: '12px', lineHeight: 1.5, color: 'var(--ink-secondary)', background: 'var(--surface-sunken)', padding: '10px 12px', borderRadius: '8px' }}>
-              <p style={{ margin: '0 0 6px' }}>
-                To trigger automatic daily messages while your laptop is turned off, ping your cron endpoint from Vercel Cron or cron-job.org:
-              </p>
-              <code style={{ fontSize: '11px', display: 'block', wordBreak: 'break-all', padding: '6px', background: 'var(--surface-elevated)', borderRadius: '4px', margin: '4px 0' }}>
-                GET /api/cron/daily-report?mode=morning&phone={cleanPhone || 'YOUR_PHONE'}
-              </code>
-              <code style={{ fontSize: '11px', display: 'block', wordBreak: 'break-all', padding: '6px', background: 'var(--surface-elevated)', borderRadius: '4px', margin: '4px 0' }}>
-                GET /api/cron/daily-report?mode=evening&phone={cleanPhone || 'YOUR_PHONE'}
-              </code>
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'var(--ink-muted)' }}>
-                Set schedules for <strong>8:00 AM</strong> and <strong>8:00 PM</strong> in your hosting provider settings.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function DriftDetectorModal({
   isOpen,
@@ -482,6 +221,55 @@ export function DriftDetectorModal({
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const expRef = useRef<HTMLSpanElement>(null);
+  const compRef = useRef<HTMLSpanElement>(null);
+  const paceRef = useRef<HTMLSpanElement>(null);
+  const overRef = useRef<HTMLSpanElement>(null);
+
+  const isBehind = stats.overdue > 0;
+  const isCritical = stats.overdue > 4;
+
+  // GSAP Smooth Number Counter & Staggered Reveal
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // 1. Modal Card Spring Entrance
+      gsap.fromTo(
+        modalRef.current,
+        { opacity: 0, scale: 0.94, y: 16 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.4)' }
+      );
+
+      // 2. Numbers Count-up
+      const tracker = { exp: 0, comp: 0, pace: 0, over: 0 };
+      gsap.to(tracker, {
+        exp: stats.expected,
+        comp: stats.completed,
+        pace: stats.completionRate,
+        over: stats.overdue,
+        duration: 0.8,
+        ease: 'power2.out',
+        onUpdate: () => {
+          if (expRef.current) expRef.current.textContent = `${Math.round(tracker.exp)}`;
+          if (compRef.current) compRef.current.textContent = `${Math.round(tracker.comp)}`;
+          if (paceRef.current) paceRef.current.textContent = `${Math.round(tracker.pace)}%`;
+          if (overRef.current) overRef.current.textContent = `${Math.round(tracker.over)}`;
+        },
+      });
+
+      // 3. Staggered Task Chips
+      gsap.fromTo(
+        '.drift-slipped-card',
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
+      );
+    }, modalRef);
+
+    return () => ctx.revert();
+  }, [isOpen, stats]);
+
   if (!isOpen) return null;
 
   async function handleAnalyze() {
@@ -500,11 +288,9 @@ export function DriftDetectorModal({
     setLoading(false);
   }
 
-  const isBehind = stats.overdue > 0;
-
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div ref={modalRef} className="modal-card drift-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <SparkleIcon />
@@ -519,60 +305,130 @@ export function DriftDetectorModal({
           Pure JavaScript computes your exact variance. Gemini interprets schedule risk without hallucinations.
         </p>
 
-        {/* Computed Facts Grid */}
+        {/* Visual Schedule Health Gauge Banner */}
+        <div className={`drift-health-banner ${isCritical ? 'critical' : isBehind ? 'warning' : 'healthy'}`}>
+          <div className="health-banner-left">
+            <div className="health-status-icon">
+              {isCritical ? <AlertOctagonIcon /> : isBehind ? <GaugeIcon /> : <CheckCircleIcon />}
+            </div>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 800 }}>
+                {isCritical
+                  ? 'CRITICAL SCHEDULE RISK'
+                  : isBehind
+                  ? 'SCHEDULE DRIFT DETECTED'
+                  : 'SPRINT PACE OPTIMAL'}
+              </h4>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', opacity: 0.85 }}>
+                {isBehind
+                  ? `${stats.overdue} tasks remain unfinished from past schedule dates.`
+                  : 'You are completely synchronized with the 84-day engineering plan.'}
+              </p>
+            </div>
+          </div>
+          <div className="health-pace-indicator">
+            <span>{stats.completionRate}%</span>
+            <small>target pace</small>
+          </div>
+        </div>
+
+        {/* Computed Facts Grid with animated number refs & icons */}
         <div className="drift-stats-grid">
           <div className="drift-stat-card">
-            <span className="drift-stat-num">{stats.expected}</span>
+            <div className="drift-card-icon">
+              <TargetCrosshairIcon />
+            </div>
+            <span ref={expRef} className="drift-stat-num">
+              {stats.expected}
+            </span>
             <span className="drift-stat-lbl">Expected Tasks</span>
           </div>
+
           <div className="drift-stat-card">
-            <span className="drift-stat-num">{stats.completed}</span>
+            <div className="drift-card-icon" style={{ color: 'var(--green-emerald)' }}>
+              <CheckCircleIcon />
+            </div>
+            <span ref={compRef} className="drift-stat-num">
+              {stats.completed}
+            </span>
             <span className="drift-stat-lbl">Completed</span>
           </div>
+
           <div className="drift-stat-card">
-            <span className="drift-stat-num">{stats.completionRate}%</span>
+            <div className="drift-card-icon" style={{ color: 'var(--purple-brand)' }}>
+              <GaugeIcon />
+            </div>
+            <span ref={paceRef} className="drift-stat-num">
+              {stats.completionRate}%
+            </span>
             <span className="drift-stat-lbl">Pace</span>
           </div>
+
           <div className={`drift-stat-card ${isBehind ? 'danger' : 'success'}`}>
-            <span className="drift-stat-num">{stats.overdue}</span>
+            <div className="drift-card-icon">
+              <AlertOctagonIcon />
+            </div>
+            <span ref={overRef} className="drift-stat-num">
+              {stats.overdue}
+            </span>
             <span className="drift-stat-lbl">{isBehind ? 'Tasks Slipping' : 'On Track'}</span>
           </div>
         </div>
 
+        {/* Visual Slipped Deliverables Board */}
         {skippedTasks.length > 0 && (
-          <div style={{ marginTop: '14px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-muted)' }}>
-              Unfinished / Slipped Tasks:
-            </span>
-            <div className="skipped-tags-list">
-              {skippedTasks.slice(0, 5).map((t, idx) => (
-                <span key={idx} className="skipped-tag">
-                  {t}
-                </span>
-              ))}
+          <div className="drift-slipped-section">
+            <div className="drift-section-head">
+              <span className="section-title-label">UNFINISHED / SLIPPED DELIVERABLES:</span>
+              <span className="slipped-count-pill">{skippedTasks.length} PENDING</span>
+            </div>
+
+            <div className="drift-slipped-list">
+              {skippedTasks.slice(0, 5).map((taskTitle, idx) => {
+                const chip = getTaskChip(taskTitle);
+                return (
+                  <div key={idx} className="drift-slipped-card">
+                    <span className={`task-chip chip-${chip.type}`}>{chip.label}</span>
+                    <span className="slipped-task-name">{taskTitle}</span>
+                    <span className="slipped-priority-tag">NEEDS ACTION</span>
+                  </div>
+                );
+              })}
+
               {skippedTasks.length > 5 && (
-                <span className="skipped-tag muted">+{skippedTasks.length - 5} more</span>
+                <div className="slipped-more-banner">
+                  +{skippedTasks.length - 5} additional deliverables need attention
+                </div>
               )}
             </div>
           </div>
         )}
 
+        {/* Gemini AI Risk Verdict Card */}
         {analysis ? (
-          <div className="ai-content-body" style={{ marginTop: '16px', background: 'var(--surface-sunken)', padding: '12px 14px', borderRadius: '8px' }}>
-            <h4 style={{ margin: '0 0 8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <BotIcon /> Gemini Risk Verdict:
-            </h4>
-            {analysis.split('\n').filter(Boolean).map((line, idx) => (
-              <p key={idx} style={{ margin: '4px 0', fontSize: '13px', lineHeight: 1.5 }}>
-                {line}
-              </p>
-            ))}
+          <div className="drift-verdict-box">
+            <div className="verdict-box-head">
+              <BotIcon />
+              <span>Gemini Risk Verdict & Recommended Action</span>
+            </div>
+            <div className="verdict-bullets">
+              {analysis
+                .split('\n')
+                .filter(Boolean)
+                .map((line, idx) => (
+                  <div key={idx} className="verdict-bullet-card">
+                    <span className="verdict-dot">→</span>
+                    <span className="verdict-text">{line.replace(/^[-*•]\s*/, '')}</span>
+                  </div>
+                ))}
+            </div>
           </div>
         ) : (
           !loading && !errorMsg && (
-            <div style={{ textAlign: 'center', margin: '20px 0' }}>
-              <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', margin: '0 0 12px' }}>
-                Run AI analysis to flag bottlenecks, cascading dependencies, and launch date risks.
+            <div className="drift-ai-placeholder">
+              <BotIcon />
+              <p>
+                Run AI analysis to evaluate bottlenecks, cascading dependencies, and launch date risks.
               </p>
             </div>
           )
@@ -580,7 +436,8 @@ export function DriftDetectorModal({
 
         {errorMsg && <p className="ai-error-notice">{errorMsg}</p>}
 
-        <div className="modal-actions-row">
+        {/* Modal Action Buttons */}
+        <div className="modal-actions-row" style={{ marginTop: '20px' }}>
           <button type="button" className="secondary-button" onClick={onClose} style={{ flex: 1 }}>
             Close
           </button>
@@ -724,13 +581,7 @@ export function BotIcon() {
   );
 }
 
-export function WhatsAppIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-    </svg>
-  );
-}
+
 
 function LoadingSpinner() {
   return (

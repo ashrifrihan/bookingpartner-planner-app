@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   applicationName: 'BookingPartner Planner',
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/bookingpartner.png',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/bookingpartner.png' },
+    ],
     apple: '/bookingpartner.png',
   },
   appleWebApp: {

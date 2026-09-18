@@ -16,9 +16,7 @@ import {
   DailyBriefCard,
   DriftDetectorModal,
   WeeklyRetroModal,
-  WhatsAppModal,
   SparkleIcon,
-  WhatsAppIcon,
 } from './AiAssistant';
 
 type Tab = 'today' | 'tomorrow' | 'week' | 'all' | 'overdue';
@@ -60,7 +58,6 @@ export default function Dashboard() {
 
 function DashboardContent() {
   const [tab, setTab] = useState<Tab>('today');
-  const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
   const [driftModalOpen, setDriftModalOpen] = useState(false);
   const [retroModalOpen, setRetroModalOpen] = useState(false);
 
@@ -367,15 +364,6 @@ function DashboardContent() {
             <SparkleIcon />
             <span>Schedule Risk</span>
           </button>
-          <button
-            type="button"
-            className="secondary-button"
-            onClick={() => setWhatsAppModalOpen(true)}
-            title="Format and share daily project status to WhatsApp"
-          >
-            <WhatsAppIcon />
-            <span>WhatsApp Update</span>
-          </button>
           <a
             className="secondary-button"
             href="/BookingPartner_Backend_12_Week_Plan.pdf"
@@ -591,28 +579,6 @@ function DashboardContent() {
         skippedTasks={skippedTasks}
       />
 
-      <WhatsAppModal
-        isOpen={whatsAppModalOpen}
-        onClose={() => setWhatsAppModalOpen(false)}
-        reportData={{
-          dateFormatted: formatDate(today, true),
-          overallPercent,
-          completedToday: completedTodayCount,
-          remainingToday: remainingTodayCount,
-          overdueCount,
-          todayTitle: todayPlan?.title || 'No scheduled tasks',
-          todayItems: todayPlan
-            ? todayPlan.items.map((it, idx) => ({
-                text: it,
-                done: Boolean(states[itemKey(today, idx)]),
-              }))
-            : [],
-          blockersText: blocked[today] || '',
-          tomorrowTitle: tomorrowPlan?.title,
-          yesterdayCompletedCount,
-          overdueTasksList,
-        }}
-      />
 
       <WeeklyRetroModal
         isOpen={retroModalOpen}

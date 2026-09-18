@@ -1773,19 +1773,6 @@ footer {
   color: var(--ink-primary);
 }
 
-.whatsapp-preview-area {
-  width: 100%;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 12.5px;
-  line-height: 1.45;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--surface-sunken);
-  color: var(--ink-primary);
-  border: 1px solid var(--line-subtle);
-  resize: vertical;
-  margin-bottom: 16px;
-}
 
 .modal-actions-row {
   display: flex;
@@ -1793,75 +1780,539 @@ footer {
   gap: 10px;
 }
 
-/* Drift Detector Stats */
+/* ---------------------------------------------------- */
+/* Rich Visual UI: Task Category Chips & Badges        */
+/* ---------------------------------------------------- */
+.task-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.chip-schema {
+  background: rgba(14, 165, 233, 0.14);
+  color: #38bdf8;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}
+
+.chip-api {
+  background: rgba(168, 85, 247, 0.14);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.chip-test {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.chip-auth {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.chip-security {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.chip-config {
+  background: rgba(148, 163, 184, 0.14);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.chip-task {
+  background: rgba(99, 102, 241, 0.14);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* ---------------------------------------------------- */
+/* Day Card Visual Elements (Acceptance, Phase, Logs)   */
+/* ---------------------------------------------------- */
+.phase-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.day-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.eyebrow-date {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 4px;
+}
+
+.ring-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ring-progress-label {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--ink-primary);
+}
+
+.complete-badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.task-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* Acceptance Criteria Target Card */
+.acceptance-target-card {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line-subtle);
+}
+
+.target-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  margin-bottom: 8px;
+}
+
+.target-card-body {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-primary);
+  margin: 0;
+  font-family: inherit;
+}
+
+/* Log & Notes Card */
+.log-field-card {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.autosave-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: var(--pill-bg);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+}
+
+.blocker-warning-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fb7185;
+}
+
+/* ---------------------------------------------------- */
+/* Schedule Drift & Risk Detector: Ultra-Rich UX Modal  */
+/* ---------------------------------------------------- */
+.drift-modal-card {
+  max-width: 580px;
+  width: 94%;
+  padding: 24px 26px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  border-radius: 20px;
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.45);
+}
+
+/* 1. Schedule Health Banner */
+.drift-health-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin: 12px 0 16px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.drift-health-banner.healthy {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.28);
+  color: var(--ink-primary);
+}
+
+.drift-health-banner.healthy .health-status-icon {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.drift-health-banner.warning {
+  background: rgba(245, 158, 11, 0.09);
+  border-color: rgba(245, 158, 11, 0.32);
+  color: var(--ink-primary);
+}
+
+.drift-health-banner.warning .health-status-icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.drift-health-banner.critical {
+  background: rgba(239, 68, 68, 0.09);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: var(--ink-primary);
+}
+
+.drift-health-banner.critical .health-status-icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.health-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.health-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.health-pace-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.health-pace-indicator span {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--ink-primary);
+}
+
+.health-pace-indicator small {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  margin-top: 3px;
+}
+
+/* 2. Computed Facts Grid */
 .drift-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  margin: 14px 0;
+  margin: 14px 0 18px;
+}
+
+@media (max-width: 540px) {
+  .drift-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .drift-stat-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   padding: 12px 8px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--surface-sunken);
   border: 1px solid var(--line-subtle);
-  text-align: center;
+  transition: transform 0.18s ease, border-color 0.18s ease;
 }
 
-.drift-stat-card.danger {
-  border-color: rgba(239, 68, 68, 0.4);
-  background: rgba(239, 68, 68, 0.08);
+.drift-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
 }
 
-.drift-stat-card.success {
-  border-color: rgba(16, 185, 129, 0.4);
-  background: rgba(16, 185, 129, 0.08);
+.drift-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--pill-bg);
+  margin-bottom: 6px;
+  color: var(--ink-secondary);
 }
 
 .drift-stat-num {
-  font-size: 18px;
-  font-weight: 800;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   color: var(--ink-primary);
 }
 
-.drift-stat-card.danger .drift-stat-num {
-  color: var(--red-rose);
-}
-
-.drift-stat-card.success .drift-stat-num {
-  color: var(--green-emerald);
-}
-
 .drift-stat-lbl {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--ink-muted);
   margin-top: 4px;
 }
 
-.skipped-tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+.drift-stat-card.danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.06);
 }
 
-.skipped-tag {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 6px;
+.drift-stat-card.danger .drift-stat-num {
+  color: #f87171;
+}
+
+.drift-stat-card.danger .drift-card-icon {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.drift-stat-card.success {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.drift-stat-card.success .drift-stat-num {
+  color: #34d399;
+}
+
+.drift-stat-card.success .drift-card-icon {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+/* 3. Visual Slipped Deliverables Board */
+.drift-slipped-section {
+  margin: 16px 0;
+  padding: 14px;
+  border-radius: 14px;
   background: var(--surface-sunken);
   border: 1px solid var(--line-subtle);
+}
+
+.drift-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.section-title-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink-secondary);
 }
 
-.skipped-tag.muted {
+.slipped-count-pill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.drift-slipped-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drift-slipped-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-subtle);
+  transition: all 0.18s ease;
+}
+
+.drift-slipped-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateX(2px);
+}
+
+.slipped-task-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slipped-priority-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  white-space: nowrap;
+}
+
+.slipped-more-banner {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--ink-muted);
+  padding: 6px 0 2px;
+}
+
+/* 4. Gemini AI Risk Verdict Card */
+.drift-verdict-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 1px solid rgba(168, 85, 247, 0.32);
+}
+
+.verdict-box-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #c084fc;
+  margin-bottom: 10px;
+}
+
+.verdict-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.verdict-bullet-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-primary);
+}
+
+.verdict-dot {
+  color: #c084fc;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.verdict-text {
+  flex: 1;
+}
+
+.drift-ai-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface-sunken);
+  border: 1px dashed var(--line-subtle);
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.drift-ai-placeholder svg {
+  flex-shrink: 0;
+  color: var(--purple-brand);
+}
+
+.drift-ai-placeholder p {
+  margin: 0;
 }
 
 @keyframes fadeIn {
@@ -1875,96 +2326,6 @@ footer {
   }
 }
 
-/* WhatsApp Phone Input & Report Type Tabs */
-.whatsapp-phone-box {
-  background: var(--surface-sunken);
-  border: 1px solid var(--line-subtle);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-}
 
-.whatsapp-phone-input {
-  flex: 1;
-  background: var(--surface-elevated);
-  border: 1px solid var(--line-subtle);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-family: inherit;
-  color: var(--ink-primary);
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.whatsapp-phone-input:focus {
-  border-color: var(--green-emerald);
-}
-
-.saved-badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--green-emerald);
-  background: rgba(16, 185, 129, 0.12);
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  animation: fadeIn 0.2s ease-out;
-}
-
-.whatsapp-type-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.whatsapp-tab-pill {
-  background: var(--surface-sunken);
-  border: 1px solid var(--line-subtle);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--ink-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.whatsapp-tab-pill:hover {
-  background: var(--surface-elevated);
-  color: var(--ink-primary);
-}
-
-.whatsapp-tab-pill.active {
-  background: var(--purple-brand);
-  border-color: var(--purple-brand);
-  color: #ffffff;
-}
-
-.ai-notice-box {
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  line-height: 1.4;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ai-notice-box.error {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  color: var(--red-rose);
-}
-
-.ai-notice-box.success {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: var(--green-emerald);
-}
 
 
