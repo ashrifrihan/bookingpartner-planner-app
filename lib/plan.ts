@@ -1,5 +1,5 @@
-export type PlanDay = {
-  date: string;
+export type PlanTaskTemplate = {
+  dayOffset: number;
   week: number;
   phase: string;
   dayInWeek: number;
@@ -8,12 +8,24 @@ export type PlanDay = {
   doneWhen: string;
 };
 
-export const PLAN_START = "2026-09-18";
-export const PLAN_END = "2026-12-10";
+export type PlanDay = PlanTaskTemplate & {
+  date: string;
+};
 
-export const plan: PlanDay[] = [
+export const DEFAULT_PLAN_START = '2026-09-18';
+
+export function computeDateForOffset(startDate: string, offsetDays: number): string {
+  const d = new Date(`${startDate}T12:00:00`);
+  d.setDate(d.getDate() + offsetDays);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export const planTemplates: PlanTaskTemplate[] = [
   {
-    "date": "2026-09-18",
+    "dayOffset": 0,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 1,
@@ -28,7 +40,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Your local database opens and Prisma can connect without errors."
   },
   {
-    "date": "2026-09-19",
+    "dayOffset": 1,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 2,
@@ -43,7 +55,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A test user can log in and a server route can read the session."
   },
   {
-    "date": "2026-09-20",
+    "dayOffset": 2,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 3,
@@ -58,7 +70,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Wrong users receive 401/403 or a safe redirect."
   },
   {
-    "date": "2026-09-21",
+    "dayOffset": 3,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 4,
@@ -73,7 +85,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A change in one tab appears in the other without refresh."
   },
   {
-    "date": "2026-09-22",
+    "dayOffset": 4,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 5,
@@ -88,7 +100,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A test booking email arrives successfully."
   },
   {
-    "date": "2026-09-23",
+    "dayOffset": 5,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 6,
@@ -103,7 +115,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The backend creates valid-looking sandbox payment data."
   },
   {
-    "date": "2026-09-24",
+    "dayOffset": 6,
     "week": 1,
     "phase": "Setup & Foundation",
     "dayInWeek": 7,
@@ -118,7 +130,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Invalid payment callbacks are rejected before any booking changes."
   },
   {
-    "date": "2026-09-25",
+    "dayOffset": 7,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 1,
@@ -133,7 +145,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A valid customer is created and invalid input is rejected."
   },
   {
-    "date": "2026-09-26",
+    "dayOffset": 8,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 2,
@@ -148,7 +160,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A new account receives a working verification link."
   },
   {
-    "date": "2026-09-27",
+    "dayOffset": 9,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 3,
@@ -163,7 +175,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Opening a valid link marks the correct user as verified."
   },
   {
-    "date": "2026-09-28",
+    "dayOffset": 10,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 4,
@@ -178,7 +190,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A valid owner can request an OTP without unlimited spam."
   },
   {
-    "date": "2026-09-29",
+    "dayOffset": 11,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 5,
@@ -193,7 +205,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A new owner can complete OTP registration end to end."
   },
   {
-    "date": "2026-09-30",
+    "dayOffset": 12,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 6,
@@ -208,7 +220,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A customer can reset a forgotten password once per token."
   },
   {
-    "date": "2026-10-01",
+    "dayOffset": 13,
     "week": 2,
     "phase": "Authentication & Users",
     "dayInWeek": 7,
@@ -223,7 +235,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "All auth journeys work without manual database edits."
   },
   {
-    "date": "2026-10-02",
+    "dayOffset": 14,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 1,
@@ -238,7 +250,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The frontend can load active cities from the real API."
   },
   {
-    "date": "2026-10-03",
+    "dayOffset": 15,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 2,
@@ -253,7 +265,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Searching a real route returns matching schedules."
   },
   {
-    "date": "2026-10-04",
+    "dayOffset": 16,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 3,
@@ -268,7 +280,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "An owner sees only their buses and can add one."
   },
   {
-    "date": "2026-10-05",
+    "dayOffset": 17,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 4,
@@ -283,7 +295,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Bus detail/edit is owner-scoped and secure."
   },
   {
-    "date": "2026-10-06",
+    "dayOffset": 18,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 5,
@@ -298,7 +310,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A saved seat layout returns exactly the same shape."
   },
   {
-    "date": "2026-10-07",
+    "dayOffset": 19,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 6,
@@ -313,7 +325,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "All supported layouts generate stable unique seat numbers."
   },
   {
-    "date": "2026-10-08",
+    "dayOffset": 20,
     "week": 3,
     "phase": "Cities, Routes & Buses",
     "dayInWeek": 7,
@@ -328,7 +340,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The buses/routes area can run without mock data."
   },
   {
-    "date": "2026-10-09",
+    "dayOffset": 21,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 1,
@@ -343,7 +355,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Creating one schedule also creates its seat inventory."
   },
   {
-    "date": "2026-10-10",
+    "dayOffset": 22,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 2,
@@ -358,7 +370,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Owner schedule filtering works with real data."
   },
   {
-    "date": "2026-10-11",
+    "dayOffset": 23,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 3,
@@ -373,7 +385,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The detail screen gets all required data in one response."
   },
   {
-    "date": "2026-10-12",
+    "dayOffset": 24,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 4,
@@ -388,7 +400,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A repeat request creates the expected future schedules and seats."
   },
   {
-    "date": "2026-10-13",
+    "dayOffset": 25,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 5,
@@ -403,7 +415,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Owners see a clear conflict warning before saving risky times."
   },
   {
-    "date": "2026-10-14",
+    "dayOffset": 26,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 6,
@@ -418,7 +430,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A valid time change updates data and notifies affected passengers."
   },
   {
-    "date": "2026-10-15",
+    "dayOffset": 27,
     "week": 4,
     "phase": "Schedules",
     "dayInWeek": 7,
@@ -433,7 +445,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Cancellation rules and passenger manifest both work on test schedules."
   },
   {
-    "date": "2026-10-16",
+    "dayOffset": 28,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 1,
@@ -448,7 +460,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Two users cannot successfully lock the same seat."
   },
   {
-    "date": "2026-10-17",
+    "dayOffset": 29,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 2,
@@ -463,7 +475,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Only the lock owner can manually release that seat."
   },
   {
-    "date": "2026-10-18",
+    "dayOffset": 30,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 3,
@@ -478,7 +490,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Expired seats return to available automatically when cron runs."
   },
   {
-    "date": "2026-10-19",
+    "dayOffset": 31,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 4,
@@ -493,7 +505,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Only an authorized cron request can release expired locks."
   },
   {
-    "date": "2026-10-20",
+    "dayOffset": 32,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 5,
@@ -508,7 +520,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Opening a schedule immediately shows its current seat state."
   },
   {
-    "date": "2026-10-21",
+    "dayOffset": 33,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 6,
@@ -523,7 +535,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Realtime changes appear without refresh in both sessions."
   },
   {
-    "date": "2026-10-22",
+    "dayOffset": 34,
     "week": 5,
     "phase": "Seat Locking & Realtime",
     "dayInWeek": 7,
@@ -538,7 +550,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Database rules remain correct even under simultaneous clicks."
   },
   {
-    "date": "2026-10-23",
+    "dayOffset": 35,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 1,
@@ -553,7 +565,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A locked seat can create exactly one pending booking."
   },
   {
-    "date": "2026-10-24",
+    "dayOffset": 36,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 2,
@@ -568,7 +580,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Fake callbacks cannot confirm a booking and duplicates are harmless."
   },
   {
-    "date": "2026-10-25",
+    "dayOffset": 37,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 3,
@@ -583,7 +595,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A valid payment leaves booking, seat and payout records consistent."
   },
   {
-    "date": "2026-10-26",
+    "dayOffset": 38,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 4,
@@ -598,7 +610,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Payment confirmation succeeds even if a message provider is temporarily down."
   },
   {
-    "date": "2026-10-27",
+    "dayOffset": 39,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 5,
@@ -613,7 +625,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Wallet totals remain correct for both full and partial use."
   },
   {
-    "date": "2026-10-28",
+    "dayOffset": 40,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 6,
@@ -628,7 +640,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Customer A cannot read Customer B's booking."
   },
   {
-    "date": "2026-10-29",
+    "dayOffset": 41,
     "week": 6,
     "phase": "Payments & Bookings",
     "dayInWeek": 7,
@@ -643,7 +655,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Cancellation, refund, seat release and ticket access all follow ownership rules."
   },
   {
-    "date": "2026-10-30",
+    "dayOffset": 42,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 1,
@@ -658,7 +670,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Dashboard totals match test payout rows."
   },
   {
-    "date": "2026-10-31",
+    "dayOffset": 43,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 2,
@@ -673,7 +685,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Owner sees only their own payout history."
   },
   {
-    "date": "2026-11-01",
+    "dayOffset": 44,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 3,
@@ -688,7 +700,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "An owner can invite and see a new employee."
   },
   {
-    "date": "2026-11-02",
+    "dayOffset": 45,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 4,
@@ -703,7 +715,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Employee access follows assigned buses and permissions."
   },
   {
-    "date": "2026-11-03",
+    "dayOffset": 46,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 5,
@@ -718,7 +730,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Owner can save company data and submit a bank-change request."
   },
   {
-    "date": "2026-11-04",
+    "dayOffset": 47,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 6,
@@ -733,7 +745,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Sensitive settings changes require proper authentication."
   },
   {
-    "date": "2026-11-05",
+    "dayOffset": 48,
     "week": 7,
     "phase": "Owner Operations",
     "dayInWeek": 7,
@@ -748,7 +760,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Owner walk-in booking appears correctly without online payment."
   },
   {
-    "date": "2026-11-06",
+    "dayOffset": 49,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 1,
@@ -763,7 +775,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Admin can browse owners without leaking unrelated secrets."
   },
   {
-    "date": "2026-11-07",
+    "dayOffset": 50,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 2,
@@ -778,7 +790,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Every moderation action has an audit trail."
   },
   {
-    "date": "2026-11-08",
+    "dayOffset": 51,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 3,
@@ -793,7 +805,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Pending bus verification can be completed by admins only."
   },
   {
-    "date": "2026-11-09",
+    "dayOffset": 52,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 4,
@@ -808,7 +820,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Bulk payout release only changes eligible records."
   },
   {
-    "date": "2026-11-10",
+    "dayOffset": 53,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 5,
@@ -823,7 +835,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Single payout decisions are traceable and reversible by policy."
   },
   {
-    "date": "2026-11-11",
+    "dayOffset": 54,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 6,
@@ -838,7 +850,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Admin can read, reply to and close a report."
   },
   {
-    "date": "2026-11-12",
+    "dayOffset": 55,
     "week": 8,
     "phase": "Admin APIs",
     "dayInWeek": 7,
@@ -853,7 +865,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Admin analytics returns correct totals on seeded test data."
   },
   {
-    "date": "2026-11-13",
+    "dayOffset": 56,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 1,
@@ -868,7 +880,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Management can work only inside the correct owner's data."
   },
   {
-    "date": "2026-11-14",
+    "dayOffset": 57,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 2,
@@ -883,7 +895,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Management walk-ins cannot touch another owner's inventory."
   },
   {
-    "date": "2026-11-15",
+    "dayOffset": 58,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 3,
@@ -898,7 +910,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Management sees only the buses and fields they are allowed to use."
   },
   {
-    "date": "2026-11-16",
+    "dayOffset": 59,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 4,
@@ -913,7 +925,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A valid code can safely preview the intended transfer."
   },
   {
-    "date": "2026-11-17",
+    "dayOffset": 60,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 5,
@@ -928,7 +940,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "A transfer code can be completed only once by the correct user."
   },
   {
-    "date": "2026-11-18",
+    "dayOffset": 61,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 6,
@@ -943,7 +955,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Expired transfers close automatically and only travelled users can review."
   },
   {
-    "date": "2026-11-19",
+    "dayOffset": 62,
     "week": 9,
     "phase": "Management, Transfers & Reviews",
     "dayInWeek": 7,
@@ -958,7 +970,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Important user actions produce visible, readable notifications."
   },
   {
-    "date": "2026-11-20",
+    "dayOffset": 63,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 1,
@@ -973,7 +985,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Every endpoint has at least one passing success and failure test."
   },
   {
-    "date": "2026-11-21",
+    "dayOffset": 64,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 2,
@@ -988,7 +1000,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Guessing another customer's ID never exposes or changes their data."
   },
   {
-    "date": "2026-11-22",
+    "dayOffset": 65,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 3,
@@ -1003,7 +1015,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Every protected route returns the correct 401/403 result."
   },
   {
-    "date": "2026-11-23",
+    "dayOffset": 66,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 4,
@@ -1018,7 +1030,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Payment status always matches booking and seat status."
   },
   {
-    "date": "2026-11-24",
+    "dayOffset": 67,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 5,
@@ -1033,7 +1045,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Concurrent/repeated jobs do not create duplicate business actions."
   },
   {
-    "date": "2026-11-25",
+    "dayOffset": 68,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 6,
@@ -1048,7 +1060,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Core screens use real APIs instead of hard-coded demo data."
   },
   {
-    "date": "2026-11-26",
+    "dayOffset": 69,
     "week": 10,
     "phase": "Security, Testing & Integration",
     "dayInWeek": 7,
@@ -1063,7 +1075,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The complete customer journey works without manual intervention."
   },
   {
-    "date": "2026-11-27",
+    "dayOffset": 70,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 1,
@@ -1078,7 +1090,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The app builds successfully on Vercel."
   },
   {
-    "date": "2026-11-28",
+    "dayOffset": 71,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 2,
@@ -1093,7 +1105,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Production app can connect to the production database."
   },
   {
-    "date": "2026-11-29",
+    "dayOffset": 72,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 3,
@@ -1108,7 +1120,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Production schema matches the application schema."
   },
   {
-    "date": "2026-11-30",
+    "dayOffset": 73,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 4,
@@ -1123,7 +1135,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Production has all required variables and no secret is exposed client-side."
   },
   {
-    "date": "2026-12-01",
+    "dayOffset": 74,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 5,
@@ -1138,7 +1150,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Main screens work on the production URL."
   },
   {
-    "date": "2026-12-02",
+    "dayOffset": 75,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 6,
@@ -1153,7 +1165,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "You can diagnose failures without leaking sensitive values."
   },
   {
-    "date": "2026-12-03",
+    "dayOffset": 76,
     "week": 11,
     "phase": "Production Preparation",
     "dayInWeek": 7,
@@ -1168,7 +1180,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "No known high-risk security issue remains before onboarding an operator."
   },
   {
-    "date": "2026-12-04",
+    "dayOffset": 77,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 1,
@@ -1183,7 +1195,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The first real operator can access a correctly configured account."
   },
   {
-    "date": "2026-12-05",
+    "dayOffset": 78,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 2,
@@ -1198,7 +1210,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The operator's real services appear in search as intended."
   },
   {
-    "date": "2026-12-06",
+    "dayOffset": 79,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 3,
@@ -1213,7 +1225,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Live seat state is correct on customer and owner screens."
   },
   {
-    "date": "2026-12-07",
+    "dayOffset": 80,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 4,
@@ -1228,7 +1240,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "One controlled live payment reconciles correctly end to end."
   },
   {
-    "date": "2026-12-08",
+    "dayOffset": 81,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 5,
@@ -1243,7 +1255,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "The real customer communication and refund path behave correctly."
   },
   {
-    "date": "2026-12-09",
+    "dayOffset": 82,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 6,
@@ -1258,7 +1270,7 @@ export const plan: PlanDay[] = [
     "doneWhen": "Two operators can use the same production system reliably."
   },
   {
-    "date": "2026-12-10",
+    "dayOffset": 83,
     "week": 12,
     "phase": "Pilot & Soft Launch",
     "dayInWeek": 7,
@@ -1272,4 +1284,19 @@ export const plan: PlanDay[] = [
     ],
     "doneWhen": "BookingPartner is live for a controlled audience with support and rollback options ready."
   }
-] as PlanDay[];
+];
+
+export function createPlan(startDate: string = DEFAULT_PLAN_START): PlanDay[] {
+  return planTemplates.map((template, idx) => {
+    const offset = typeof template.dayOffset === 'number' ? template.dayOffset : idx;
+    return {
+      ...template,
+      dayOffset: offset,
+      date: computeDateForOffset(startDate, offset),
+    };
+  });
+}
+
+export const plan: PlanDay[] = createPlan(DEFAULT_PLAN_START);
+export const PLAN_START: string = plan[0]?.date || DEFAULT_PLAN_START;
+export const PLAN_END: string = plan[plan.length - 1]?.date || DEFAULT_PLAN_START;
