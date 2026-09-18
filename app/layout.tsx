@@ -17,14 +17,14 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: 'BP Planner',
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
   },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#09080f' },
-    { media: '(prefers-color-scheme: light)', color: '#f5f5fa' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b0c11' },
+    { media: '(prefers-color-scheme: light)', color: '#f4f6fb' },
   ],
   width: 'device-width',
   initialScale: 1,
