@@ -94,9 +94,9 @@ button {
 
 /* App Shell Container */
 .app-shell {
-  width: min(880px, calc(100% - 28px));
+  width: min(1320px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 18px 0 40px;
+  padding: 18px 0 50px;
 }
 
 /* Top Navigation Bar */
@@ -105,7 +105,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .brand-row {
@@ -117,9 +117,9 @@ button {
 /* Zero glow on logo */
 .brand-mark {
   display: block;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   object-fit: cover;
   box-shadow: none !important;
   filter: none !important;
@@ -142,7 +142,7 @@ button {
 }
 
 .topbar h1 {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
   margin: 1px 0 0;
   letter-spacing: -0.03em;
@@ -158,13 +158,60 @@ button {
   text-transform: uppercase;
 }
 
+/* Header Center Capsule Navigation (FINNOVA inspired) */
+.header-nav-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 4px 6px;
+  box-shadow: var(--card-shadow);
+}
+
+.header-nav-capsule button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-secondary);
+  padding: 7px 15px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 750;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.header-nav-capsule button:hover {
+  color: var(--ink-primary);
+}
+
+.header-nav-capsule button.active {
+  background: var(--purple-brand);
+  color: #ffffff;
+}
+
+.header-nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--pill-bg);
+  border: 1px solid var(--line-subtle);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-secondary);
+  margin-left: 4px;
+}
+
 .top-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Status Pill */
+/* Status Pill (Zero dots, uses SVG icons) */
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -174,8 +221,19 @@ button {
   padding: 7px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ink-secondary);
+}
+
+.status-pill.online {
+  color: var(--green-emerald);
+  border-color: rgba(16, 185, 129, 0.25);
+  background: var(--green-surface);
+}
+
+.status-pill.offline {
+  color: var(--red-accent);
+  border-color: rgba(244, 63, 94, 0.25);
 }
 
 .status-dot {
@@ -242,116 +300,262 @@ button {
 }
 
 /* ---------------------------------------------------- */
-/* Hero Wallet Card (Directly inspired by Reference UI)  */
+/* FINNOVA Inspired KPI Cards Grid & Widgets           */
 /* ---------------------------------------------------- */
-.wallet-hero {
-  position: relative;
-  background: var(--surface-card);
-  border: 1px solid var(--line-strong);
-  border-radius: 28px;
-  padding: 26px 24px 22px;
-  box-shadow: var(--hero-shadow);
-  margin-bottom: 22px;
-  overflow: hidden;
-  text-align: center;
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.wallet-meta-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--pill-bg);
-  border: 1px solid var(--line-subtle);
+.page-title-left h2 {
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 900;
+  letter-spacing: -0.035em;
+  margin: 0 0 4px;
+  color: var(--ink-primary);
+}
+
+.page-title-left p {
+  margin: 0;
   color: var(--ink-secondary);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.page-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 4-Column KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--surface-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--card-shadow);
+  min-height: 184px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--purple-brand);
+}
+
+.kpi-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
-.wallet-balance {
-  margin: 4px 0 2px;
-  font-size: clamp(42px, 8vw, 64px);
+.kpi-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+
+.kpi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.kpi-pill.success {
+  background: var(--green-surface);
+  color: var(--green-emerald);
+}
+
+.kpi-pill.brand {
+  background: var(--purple-surface);
+  color: var(--purple-brand);
+}
+
+.kpi-pill.muted {
+  background: var(--pill-bg);
+  color: var(--ink-secondary);
+  border: 1px solid var(--line-subtle);
+}
+
+.kpi-value-row {
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 32px;
   font-weight: 900;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.04em;
   line-height: 1.05;
   color: var(--ink-primary);
 }
 
-.wallet-subtext {
-  margin: 0 0 18px;
-  color: var(--ink-secondary);
+.kpi-unit {
   font-size: 13.5px;
   font-weight: 600;
+  color: var(--ink-secondary);
+  margin-left: 5px;
+  letter-spacing: normal;
+}
+
+.kpi-subtext {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink-secondary);
+  margin: 0;
+}
+
+/* FINNOVA 7-Bar Mini Chart */
+.kpi-bar-chart {
   display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  height: 52px;
+  padding: 4px 0 2px;
+  margin-top: 8px;
+}
+
+.kpi-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.wallet-progress-container {
-  width: min(440px, 100%);
-  margin: 0 auto 20px;
-}
-
-.wallet-progress-track {
-  height: 8px;
-  background: var(--ring-track);
-  border-radius: 999px;
-  overflow: hidden;
-  position: relative;
-}
-
-.wallet-progress-bar {
-  display: block;
+  gap: 5px;
   height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #683fff, #8b5cf6, #38bdf8);
-  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  justify-content: flex-end;
 }
 
-/* Quick Action Cluster */
-.wallet-actions {
+.kpi-bar-track {
+  width: 100%;
+  max-width: 14px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: var(--ring-track);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.kpi-bar-fill {
+  width: 100%;
+  border-radius: 4px;
+  background: var(--purple-brand);
+  transition: height 0.4s ease;
+}
+
+.kpi-bar-fill.active {
+  background: #38bdf8;
+}
+
+.kpi-bar-fill.complete {
+  background: var(--green-emerald);
+}
+
+.kpi-bar-label {
+  font-size: 9.5px;
+  font-weight: 750;
+  color: var(--ink-muted);
+}
+
+.kpi-bar-col.today .kpi-bar-label {
+  color: var(--purple-brand);
+  font-weight: 900;
+}
+
+/* FINNOVA Curved Sparkline */
+.kpi-sparkline-wrap {
+  width: 100%;
+  height: 52px;
+  margin-top: 6px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 
-.action-pill-btn {
+.kpi-sparkline {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Card 4 Actions (like Payout now) */
+.kpi-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.kpi-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
+  gap: 6px;
+  padding: 7px 14px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 750;
   background: var(--surface-card-subtle);
   color: var(--ink-primary);
   border: 1px solid var(--line-strong);
   text-decoration: none;
-  box-shadow: none !important;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
+  cursor: pointer;
 }
 
-.action-pill-btn:hover {
-  background: var(--surface-card-elevated);
-  transform: translateY(-1px);
-  border-color: var(--line-strong);
-}
-
-.action-pill-btn.primary {
-  background: var(--pill-active);
-  color: var(--pill-active-ink);
+.kpi-action-btn:hover {
+  background: var(--purple-brand);
+  color: #ffffff;
   border-color: transparent;
+  transform: translateY(-1px);
 }
 
-.action-pill-btn.primary:hover {
-  transform: translateY(-1px);
-  opacity: 0.95;
+.kpi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--ink-secondary);
+  border-top: 1px solid var(--line-subtle);
+  padding-top: 10px;
+  margin-top: auto;
+}
+
+.kpi-footer .trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--green-emerald);
+  font-weight: 750;
+}
+
+/* Zero Dots: Animated Sync & Status Badge */
+.spin-icon {
+  animation: spin 0.85s linear infinite;
 }
 
 .synchronized-pill {
@@ -365,7 +569,62 @@ button {
   color: var(--green-emerald);
   font-size: 11.5px;
   font-weight: 750;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+}
+
+.synchronized-pill.syncing {
+  background: var(--purple-surface);
+  border-color: rgba(110, 72, 255, 0.3);
+  color: var(--purple-brand);
+}
+
+.synchronized-pill.local {
+  background: var(--pill-bg);
+  border-color: var(--line-subtle);
+  color: var(--ink-secondary);
+}
+
+/* FINNOVA Filter Row ("Active filters") */
+.filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-pills-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--line-subtle);
+  font-size: 12px;
+  font-weight: 750;
+  color: var(--ink-secondary);
+}
+
+.filter-chip-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--purple-brand);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
 }
 
 /* Notice / Alert */
@@ -440,14 +699,21 @@ button {
 /* ---------------------------------------------------- */
 .day-grid {
   display: grid;
-  gap: 16px;
+  gap: 18px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .day-grid.multi-col {
+    grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  }
 }
 
 .day-card {
   background: var(--surface-card);
   border: 1px solid var(--line-subtle);
   border-radius: 24px;
-  padding: 20px 22px;
+  padding: 22px 24px;
   box-shadow: var(--card-shadow);
   transition: all 0.22s ease;
 }
@@ -458,6 +724,39 @@ button {
 
 .day-card.complete {
   border-color: rgba(16, 185, 129, 0.28);
+}
+
+/* FINNOVA Inspired Desktop Split Layout for Focused Day View */
+@media (min-width: 920px) {
+  .day-card.split-card {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .day-card.split-card .day-card-head {
+    grid-column: 1 / -1;
+  }
+
+  .day-card.split-card .checklist-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .day-card.split-card .notes-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .day-card.split-card .notes-grid {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
 }
 
 .day-card-head {
@@ -978,28 +1277,23 @@ footer {
 }
 
 /* Responsive adjustments */
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .header-nav-capsule {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .app-shell {
-    width: calc(100% - 24px);
+    width: calc(100% - 20px);
     padding-top: 14px;
   }
 
-  .wallet-hero {
-    padding: 22px 18px 18px;
-    border-radius: 24px;
-  }
-
-  .wallet-balance {
-    font-size: 46px;
-  }
-
-  .wallet-actions {
-    gap: 8px;
-  }
-
-  .action-pill-btn {
-    padding: 8px 14px;
-    font-size: 12px;
+  .page-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 
   .notes-grid {
@@ -1025,11 +1319,8 @@ footer {
   }
 }
 
-/* On mobile (<=680px): show floating bottom dock, hide redundant top tabs */
+/* On mobile (<=680px): show floating bottom dock */
 @media (max-width: 680px) {
-  .desktop-only {
-    display: none !important;
-  }
   .dock-wrapper {
     display: flex !important;
   }
@@ -1038,11 +1329,8 @@ footer {
   }
 }
 
-/* On desktop (>680px): show top segmented tabs, hide floating bottom dock */
+/* On desktop (>680px): hide floating bottom dock */
 @media (min-width: 681px) {
-  .desktop-only {
-    display: inline-flex !important;
-  }
   .dock-wrapper {
     display: none !important;
   }

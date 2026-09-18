@@ -487,9 +487,76 @@ export default function Dashboard() {
 
   const currentDayNumber = todayPlan ? plan.findIndex((day) => day.date === todayPlan.date) + 1 : null;
 
+  // Key KPI metrics calculations
+  const completedDaysCount = useMemo(() => {
+    return plan.filter((day) => day.items.every((_, idx) => states[itemKey(day.date, idx)])).length;
+  }, [states]);
+
+  const activeWeekNumber = todayPlan?.week ?? (today < PLAN_START ? 1 : 12);
+  const activeWeekDays = useMemo(() => plan.filter((day) => day.week === activeWeekNumber), [activeWeekNumber]);
+  const activeWeekKeys = useMemo(
+    () => activeWeekDays.flatMap((day) => day.items.map((_, idx) => itemKey(day.date, idx))),
+    [activeWeekDays]
+  );
+  const activeWeekDone = useMemo(
+    () => activeWeekKeys.filter((key) => states[key]).length,
+    [activeWeekKeys, states]
+  );
+  const activeWeekPercent = activeWeekKeys.length
+    ? Math.round((activeWeekDone / activeWeekKeys.length) * 100)
+    : 0;
+
+  const daysRemaining = Math.max(0, plan.length - completedDaysCount);
+
+  // 7-bar chart data for the active week sprint (matching FINNOVA Card 2)
+  const weekBarsData = useMemo(() => {
+    return activeWeekDays.map((day) => {
+      const keys = day.items.map((_, idx) => itemKey(day.date, idx));
+      const done = keys.filter((k) => states[k]).length;
+      const pct = keys.length ? Math.round((done / keys.length) * 100) : 0;
+      const dateObj = new Date(`${day.date}T12:00:00`);
+      const label = new Intl.DateTimeFormat('en-US', { weekday: 'narrow' }).format(dateObj);
+      return {
+        date: day.date,
+        label,
+        pct,
+        isToday: day.date === today,
+        isComplete: pct === 100,
+      };
+    });
+  }, [activeWeekDays, states, today]);
+
+  // 12-week curved sparkline SVG data (matching FINNOVA Card 3)
+  const sparklineData = useMemo(() => {
+    const pts = Array.from({ length: 12 }, (_, i) => {
+      const w = i + 1;
+      const wDays = plan.filter((d) => d.week === w);
+      const wKeys = wDays.flatMap((d) => d.items.map((_, idx) => itemKey(d.date, idx)));
+      const done = wKeys.filter((k) => states[k]).length;
+      return wKeys.length ? Math.round((done / wKeys.length) * 100) : 0;
+    });
+
+    const coords = pts.map((val, i) => {
+      const x = 10 + i * 14;
+      const y = Math.round(36 - (val / 100) * 26);
+      return { x, y, val, week: i + 1 };
+    });
+
+    const pathD = coords.reduce((acc, pt, idx, arr) => {
+      if (idx === 0) return `M ${pt.x} ${pt.y}`;
+      const prev = arr[idx - 1];
+      const cx = (prev.x + pt.x) / 2;
+      return `${acc} C ${cx} ${prev.y}, ${cx} ${pt.y}, ${pt.x} ${pt.y}`;
+    }, '');
+
+    const areaD = `${pathD} L ${coords[coords.length - 1].x} 44 L ${coords[0].x} 44 Z`;
+
+    return { coords, pathD, areaD };
+  }, [states]);
+
   return (
     <main className="app-shell">
-      {/* Topbar */}
+      {/* Topbar matching FINNOVA Reference */}
       <header className="topbar">
         <div className="brand-row">
           <img src="/bookingpartner.png" alt="BookingPartner.lk" className="brand-mark small" width={40} height={40} />
@@ -498,11 +565,30 @@ export default function Dashboard() {
             <h1>Backend Planner</h1>
           </div>
         </div>
+
+        {/* Center Navigation Capsule (Desktop) */}
+        <nav className="header-nav-capsule" aria-label="Main views">
+          {(['today', 'tomorrow', 'week', 'all'] as Tab[]).map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setTab(item)}
+              className={tab === item ? 'active' : ''}
+            >
+              {item === 'today' ? 'Today' : item === 'tomorrow' ? 'Tomorrow' : item === 'week' ? `Week ${activeWeekNumber}` : 'Roadmap'}
+            </button>
+          ))}
+          <span className="header-nav-badge" title="84 days total schedule">84</span>
+        </nav>
+
+        {/* Right utility actions */}
         <div className="top-actions">
-          <span className="status-pill">
-            <span className={`status-dot ${online ? 'online' : 'offline'}`} />
-            {online ? 'Online' : 'Offline'}
+          {/* Online status indicator with ZERO dots */}
+          <span className={`status-pill ${online ? 'online' : 'offline'}`} title={online ? 'Internet Connected' : 'Offline Mode'}>
+            {online ? <OnlineWifiIcon /> : <OfflineWifiIcon />}
+            <span>{online ? 'Online' : 'Offline'}</span>
           </span>
+
           <button
             type="button"
             className="icon-pill-btn"
@@ -512,6 +598,7 @@ export default function Dashboard() {
           >
             {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
           </button>
+
           {supabase && user && (
             <button
               type="button"
@@ -526,66 +613,237 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Hero "Wallet" Card (Inspired by reference UI) */}
-      <section className="wallet-hero">
-        <div className="wallet-meta-pill">
-          <span>{todayPlan ? `Week ${todayPlan.week} · ${todayPlan.phase}` : '12-Week Roadmap'}</span>
+      {/* Page Title & Action Bar */}
+      <div className="page-title-row">
+        <div className="page-title-left">
+          <h2>Deliverables & Roadmap</h2>
+          <p>Manage and track all 84 engineering tasks in one place.</p>
         </div>
-
-        <div className="wallet-balance">{overallPercent}%</div>
-        <p className="wallet-subtext">
-          {todayPlan
-            ? `Day ${currentDayNumber} of 84 · ${todayPlan.title}`
-            : `${PLAN_START} → ${PLAN_END}`}
-        </p>
-
-        {/* Progress line */}
-        <div className="wallet-progress-container">
-          <div className="wallet-progress-track">
-            <span className="wallet-progress-bar" style={{ width: `${overallPercent}%` }} />
-          </div>
-        </div>
-
-        {/* Action Button Cluster (like Receive / + / Send) */}
-        <div className="wallet-actions">
-          <button type="button" className="action-pill-btn" onClick={installApp} title="Install as Mobile App">
-            <DownloadIcon />
-            <span>Install</span>
-          </button>
+        <div className="page-actions-right">
           <a
-            className="action-pill-btn"
+            className="secondary-button"
             href="/BookingPartner_Backend_12_Week_Plan.pdf"
             target="_blank"
             rel="noreferrer"
-            title="Download full 12-week schedule PDF"
+            title="Download complete 12-week schedule PDF"
           >
             <DocumentIcon />
             <span>Schedule PDF</span>
           </a>
-          {supabase && user && (
-            <button
-              type="button"
-              className="action-pill-btn"
-              onClick={() => loadCloud()}
-              disabled={syncing}
-              title="Refresh and sync cloud data"
-            >
-              <RefreshIcon />
-              <span>{syncing ? 'Syncing…' : 'Sync'}</span>
+          {installPrompt && (
+            <button type="button" className="secondary-button" onClick={installApp} title="Install as Web App">
+              <DownloadIcon />
+              <span>Install App</span>
             </button>
           )}
         </div>
+      </div>
 
-        {/* Synchronized status indicator badge */}
-        <div>
-          <span className="synchronized-pill">
-            <span className="status-dot online" />
-            {isSupabaseConfigured
-              ? syncing
-                ? 'Syncing with Supabase…'
-                : '● Synchronized'
-              : 'Local Demo Mode · Synchronized'}
-          </span>
+      {/* FINNOVA 4-Column KPI Cards Grid */}
+      <section className="kpi-grid" aria-label="Key Performance Indicators">
+        {/* KPI Card 1: Overall Progress */}
+        <div className="kpi-card">
+          <div className="kpi-head">
+            <span className="kpi-title">Overall Progress</span>
+            <span className="kpi-pill success">
+              <TrendUpIcon />
+              <span>On Track</span>
+            </span>
+          </div>
+
+          <div className="kpi-value-row">
+            <div className="kpi-value">
+              {overallPercent}%
+              <span className="kpi-unit">completed</span>
+            </div>
+          </div>
+
+          <div className="wallet-progress-track" style={{ height: 6, margin: '6px 0 10px' }}>
+            <span className="wallet-progress-bar" style={{ width: `${overallPercent}%` }} />
+          </div>
+
+          <div className="kpi-footer">
+            <span className="trend">
+              <TrendUpIcon />
+              <span>{completedCount} of {totalCount} tasks</span>
+            </span>
+            <span>{completedDaysCount}/84 days</span>
+          </div>
+        </div>
+
+        {/* KPI Card 2: Current Sprint with 7-Bar Chart */}
+        <div className="kpi-card">
+          <div className="kpi-head">
+            <span className="kpi-title">Week {activeWeekNumber} Sprint</span>
+            <span className="kpi-pill brand">
+              <CalendarIcon />
+              <span>{activeWeekPercent}%</span>
+            </span>
+          </div>
+
+          <div className="kpi-value-row">
+            <div className="kpi-value">
+              {activeWeekDone}
+              <span className="kpi-unit">/ {activeWeekKeys.length} tasks</span>
+            </div>
+          </div>
+
+          {/* Mini 7-Bar Chart */}
+          <div className="kpi-bar-chart" aria-label="Weekly 7-day task distribution">
+            {weekBarsData.map((bar) => (
+              <div
+                key={bar.date}
+                className={`kpi-bar-col ${bar.isToday ? 'today' : ''}`}
+                title={`${formatDate(bar.date)}: ${bar.pct}% finished`}
+              >
+                <div className="kpi-bar-track">
+                  <div
+                    className={`kpi-bar-fill ${bar.isToday ? 'active' : bar.isComplete ? 'complete' : ''}`}
+                    style={{ height: `${Math.max(14, bar.pct)}%` }}
+                  />
+                </div>
+                <span className="kpi-bar-label">{bar.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="kpi-footer">
+            <span>{activeWeekDays[0]?.phase || 'Foundation'}</span>
+            <span className="trend">
+              <TrendUpIcon />
+              <span>Active</span>
+            </span>
+          </div>
+        </div>
+
+        {/* KPI Card 3: Schedule Velocity with Curved Sparkline */}
+        <div className="kpi-card">
+          <div className="kpi-head">
+            <span className="kpi-title">Schedule Velocity</span>
+            <span className="kpi-pill muted">
+              <span>84 Days Total</span>
+            </span>
+          </div>
+
+          <div className="kpi-value-row">
+            <div className="kpi-value">
+              {daysRemaining}
+              <span className="kpi-unit">days left</span>
+            </div>
+          </div>
+
+          {/* Curved SVG Sparkline */}
+          <div className="kpi-sparkline-wrap">
+            <svg className="kpi-sparkline" viewBox="0 0 174 46" fill="none">
+              <defs>
+                <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              <path d={sparklineData.areaD} fill="url(#sparklineGrad)" />
+              <path
+                d={sparklineData.pathD}
+                stroke="var(--purple-brand)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {sparklineData.coords.map((pt) => (
+                <circle
+                  key={pt.week}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r={pt.week === activeWeekNumber ? '3.5' : '2'}
+                  fill={pt.week === activeWeekNumber ? '#38bdf8' : 'var(--purple-brand)'}
+                  stroke="var(--surface-card)"
+                  strokeWidth="1.5"
+                />
+              ))}
+            </svg>
+          </div>
+
+          <div className="kpi-footer">
+            <span>{formatDate(PLAN_START)} to {formatDate(PLAN_END)}</span>
+            <span>12 Weeks</span>
+          </div>
+        </div>
+
+        {/* KPI Card 4: Cloud Sync & Storage (Zero dots, uses SVG loading icons) */}
+        <div className="kpi-card">
+          <div className="kpi-head">
+            <span className="kpi-title">Storage & Sync</span>
+            <span className="kpi-pill brand">
+              <CloudStorageIcon />
+              <span>{isSupabaseConfigured ? 'Realtime' : 'Local'}</span>
+            </span>
+          </div>
+
+          <div className="kpi-value-row">
+            <div className="kpi-value">
+              {isSupabaseConfigured ? 'Supabase' : 'Offline DB'}
+            </div>
+          </div>
+
+          {/* Synchronized status indicator badge: ZERO DOTS */}
+          <div>
+            <span className={`synchronized-pill ${syncing ? 'syncing' : isSupabaseConfigured ? '' : 'local'}`}>
+              {isSupabaseConfigured ? (
+                syncing ? (
+                  <>
+                    <SyncSpinIcon className="spin-icon" />
+                    <span>Syncing cloud…</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckBadgeIcon />
+                    <span>Synchronized</span>
+                  </>
+                )
+              ) : (
+                <>
+                  <HardDriveIcon />
+                  <span>Local Device Synced</span>
+                </>
+              )}
+            </span>
+          </div>
+
+          {/* Quick Action cluster */}
+          <div className="kpi-action-row">
+            {supabase && user ? (
+              <button
+                type="button"
+                className="kpi-action-btn"
+                onClick={() => loadCloud()}
+                disabled={syncing}
+                title="Force realtime cloud refresh"
+              >
+                <RefreshIcon />
+                <span>{syncing ? 'Syncing…' : 'Sync now'}</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="kpi-action-btn"
+                onClick={installApp}
+                title="Install application locally"
+              >
+                <DownloadIcon />
+                <span>Install</span>
+              </button>
+            )}
+            <a
+              className="kpi-action-btn"
+              href="/BookingPartner_Backend_12_Week_Plan.pdf"
+              target="_blank"
+              rel="noreferrer"
+              title="View PDF"
+            >
+              <ArrowUpRightIcon />
+              <span>PDF</span>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -596,19 +854,34 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Section Header */}
-      <div className="section-head">
-        <div>
-          <p className="eyebrow">DELIVERABLES</p>
-          <h2>{tab === 'today' ? "Today's Tasks" : tab === 'tomorrow' ? "Tomorrow's Tasks" : tab === 'week' ? "This Week's Sprint" : '12-Week Roadmap'}</h2>
+      {/* FINNOVA Filter Row ("Active filters") */}
+      <div className="filter-strip">
+        <div className="filter-pills-group">
+          <div className="filter-label-chip">
+            <span>Active view</span>
+            <span className="filter-chip-counter">
+              {tab === 'today' ? '1' : tab === 'tomorrow' ? '1' : tab === 'week' ? '7' : '84'}
+            </span>
+          </div>
+
+          <nav className="tabs-segmented" aria-label="Planner views">
+            {(['today', 'tomorrow', 'week', 'all'] as Tab[]).map((item) => (
+              <button key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>
+                {item === 'today' ? 'Today' : item === 'tomorrow' ? 'Tomorrow' : item === 'week' ? `Week ${activeWeekNumber}` : 'All 12W'}
+              </button>
+            ))}
+          </nav>
         </div>
-        <nav className="tabs-segmented desktop-only" aria-label="Planner views">
-          {(['today', 'tomorrow', 'week', 'all'] as Tab[]).map((item) => (
-            <button key={item} onClick={() => setTab(item)} className={tab === item ? 'active' : ''}>
-              {item === 'today' ? 'Today' : item === 'tomorrow' ? 'Tomorrow' : item === 'week' ? 'Week' : 'All 12W'}
-            </button>
-          ))}
-        </nav>
+
+        <div className="eyebrow" style={{ margin: 0 }}>
+          {tab === 'today'
+            ? `${formatDate(today, true)}`
+            : tab === 'tomorrow'
+            ? `${formatDate(tomorrow, true)}`
+            : tab === 'week'
+            ? `Sprint Phase: ${activeWeekDays[0]?.phase || 'Foundation'}`
+            : '84 Days · 12 Weeks Plan'}
+        </div>
       </div>
 
       {/* Main Task Feed */}
@@ -636,7 +909,7 @@ export default function Dashboard() {
                   </div>
                   <strong>{percent}%</strong>
                 </div>
-                <div className="day-grid">
+                <div className="day-grid multi-col">
                   {days.map((day) => (
                     <DayCard
                       key={day.date}
@@ -653,8 +926,8 @@ export default function Dashboard() {
               </section>
             );
           })
-        ) : (
-          <div className="day-grid">
+        ) : tab === 'week' ? (
+          <div className="day-grid multi-col">
             {visibleDays.map((day) => (
               <DayCard
                 key={day.date}
@@ -667,10 +940,26 @@ export default function Dashboard() {
               />
             ))}
           </div>
+        ) : (
+          /* Focused Today or Tomorrow: Desktop Split Panel (inspired by FINNOVA detail panel) */
+          <div className="day-grid">
+            {visibleDays.map((day) => (
+              <DayCard
+                key={day.date}
+                day={day}
+                states={states}
+                onToggle={toggleItem}
+                notes={notes}
+                blocked={blocked}
+                onSaveText={saveDayText}
+                split={true}
+              />
+            ))}
+          </div>
         )}
       </section>
 
-      {/* Floating Bottom Capsule Navigation Dock (Inspired by reference Image 1) */}
+      {/* Floating Bottom Capsule Navigation Dock (for mobile screens) */}
       <div className="dock-wrapper">
         <nav className="floating-dock" aria-label="Quick mobile navigation">
           <button
@@ -734,6 +1023,7 @@ function DayCard({
   blocked,
   onSaveText,
   compact = false,
+  split = false,
 }: {
   day: PlanDay;
   states: ItemStates;
@@ -742,12 +1032,13 @@ function DayCard({
   blocked: TextMap;
   onSaveText: (date: string, field: 'note' | 'blocked', value: string) => void;
   compact?: boolean;
+  split?: boolean;
 }) {
   const done = day.items.filter((_, index) => states[itemKey(day.date, index)]).length;
   const percent = Math.round((done / day.items.length) * 100);
 
   return (
-    <article className={`day-card ${percent === 100 ? 'complete' : ''}`}>
+    <article className={`day-card ${percent === 100 ? 'complete' : ''} ${split ? 'split-card' : ''}`}>
       <div className="day-card-head">
         <div>
           <p className="eyebrow">WEEK {day.week} · {formatDate(day.date)}</p>
@@ -759,48 +1050,52 @@ function DayCard({
         </div>
       </div>
 
-      <div className="checklist">
-        {day.items.map((item, index) => {
-          const checked = Boolean(states[itemKey(day.date, index)]);
-          return (
-            <label className={`check-row ${checked ? 'checked' : ''}`} key={`${day.date}-${index}`}>
-              <input type="checkbox" checked={checked} onChange={() => onToggle(day, index)} />
-              <span className="fake-check">{checked ? '✓' : ''}</span>
-              <span className="check-text">{item}</span>
-            </label>
-          );
-        })}
-      </div>
+      <div className="checklist-col">
+        <div className="checklist">
+          {day.items.map((item, index) => {
+            const checked = Boolean(states[itemKey(day.date, index)]);
+            return (
+              <label className={`check-row ${checked ? 'checked' : ''}`} key={`${day.date}-${index}`}>
+                <input type="checkbox" checked={checked} onChange={() => onToggle(day, index)} />
+                <span className="fake-check">{checked ? '✓' : ''}</span>
+                <span className="check-text">{item}</span>
+              </label>
+            );
+          })}
+        </div>
 
-      <div className="done-when">
-        <strong>Done when:</strong> {day.doneWhen}
+        <div className="done-when">
+          <strong>Done when:</strong> {day.doneWhen}
+        </div>
       </div>
 
       {!compact && (
-        <div className="notes-grid">
-          <label>
-            Notes
-            <textarea
-              value={notes[day.date] || ''}
-              onChange={(e) => onSaveText(day.date, 'note', e.target.value)}
-              placeholder="What did you finish?"
-            />
-          </label>
-          <label>
-            Blocked by
-            <textarea
-              value={blocked[day.date] || ''}
-              onChange={(e) => onSaveText(day.date, 'blocked', e.target.value)}
-              placeholder="Anything stopping you?"
-            />
-          </label>
+        <div className="notes-col">
+          <div className="notes-grid">
+            <label>
+              Notes
+              <textarea
+                value={notes[day.date] || ''}
+                onChange={(e) => onSaveText(day.date, 'note', e.target.value)}
+                placeholder="What did you finish?"
+              />
+            </label>
+            <label>
+              Blocked by
+              <textarea
+                value={blocked[day.date] || ''}
+                onChange={(e) => onSaveText(day.date, 'blocked', e.target.value)}
+                placeholder="Anything stopping you?"
+              />
+            </label>
+          </div>
         </div>
       )}
     </article>
   );
 }
 
-// Crisp inline SVG Icons
+// Crisp inline SVG Icons (NO DOTS ANYWHERE)
 function SunIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -857,7 +1152,7 @@ function SparkIcon() {
 
 function CalendarIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
       <line x1="16" x2="16" y1="2" y2="6" />
       <line x1="8" x2="8" y1="2" y2="6" />
@@ -879,7 +1174,7 @@ function GridIcon() {
 
 function DownloadIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" x2="12" y1="15" y2="3" />
@@ -889,7 +1184,7 @@ function DownloadIcon() {
 
 function DocumentIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
       <polyline points="14 2 14 8 20 8" />
     </svg>
@@ -898,7 +1193,7 @@ function DocumentIcon() {
 
 function RefreshIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
       <path d="M21 3v5h-5" />
       <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
@@ -913,6 +1208,85 @@ function SignOutIcon() {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" x2="9" y1="12" y2="12" />
+    </svg>
+  );
+}
+
+function SyncSpinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
+
+function CheckBadgeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9" />
+      <polyline points="9 12 11.5 14.5 15.5 10.5" />
+    </svg>
+  );
+}
+
+function CloudStorageIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+    </svg>
+  );
+}
+
+function HardDriveIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="8" x="2" y="14" rx="2" />
+      <path d="M6 18h.01" />
+      <path d="M10 18h.01" />
+      <path d="M2 14l3.5-9h13L22 14" />
+    </svg>
+  );
+}
+
+function ArrowUpRightIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="7" y1="17" x2="17" y2="7" />
+      <polyline points="7 7 17 7 17 17" />
+    </svg>
+  );
+}
+
+function TrendUpIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="18 15 18 9 12 9" />
+      <polyline points="6 20 18 8" />
+    </svg>
+  );
+}
+
+function OnlineWifiIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+      <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+      <path d="M12 20h.01" strokeWidth="3" />
+    </svg>
+  );
+}
+
+function OfflineWifiIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="1" y1="1" x2="23" y2="23" />
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+      <line x1="12" y1="20" x2="12.01" y2="20" strokeWidth="3" />
     </svg>
   );
 }
