@@ -1,13 +1,15 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import type { ThemeMode } from '@/lib/storage';
 import type { PlannerNavView } from './NavigationDock';
 
 type TopBarProps = {
-  view: PlannerNavView;
-  setView: (view: PlannerNavView) => void;
-  activeWeekNumber: number;
+  view?: PlannerNavView;
+  setView?: (view: PlannerNavView) => void;
+  activeWeekNumber?: number;
   online: boolean;
   theme: ThemeMode;
   toggleTheme: () => void;
@@ -31,9 +33,18 @@ export function TopBar({
   onOpenWhatsApp,
   overdueCount = 0,
 }: TopBarProps) {
+  const pathname = usePathname();
+  const currentView: PlannerNavView =
+    pathname === '/' ? 'home' :
+    pathname.startsWith('/schedule') ? 'schedule' :
+    pathname.startsWith('/tasks') ? 'tasks' :
+    pathname.startsWith('/memory') ? 'memory' :
+    pathname.startsWith('/ai') ? 'ai' :
+    (view || 'home');
+
   return (
     <header className="topbar">
-      <div className="brand-row" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
+      <Link href="/" className="brand-row" style={{ textDecoration: 'none', color: 'inherit' }}>
         <img
           src="/bookingpartner.png"
           alt="BookingPartner.lk"
@@ -43,47 +54,48 @@ export function TopBar({
         />
         <div>
           <p className="eyebrow">BOOKINGPARTNER.LK</p>
-          <h1>Dev Assistant & Memory</h1>
+          <h1>Dev Assistant &amp; Memory</h1>
         </div>
-      </div>
+      </Link>
 
       {/* Desktop Center Navigation Capsule */}
       <nav className="header-nav-capsule" aria-label="Main views">
-        <button
-          type="button"
-          onClick={() => setView('home')}
-          className={view === 'home' ? 'active' : ''}
+        <Link
+          href="/"
+          className={currentView === 'home' ? 'active' : ''}
+          onClick={() => setView?.('home')}
         >
           Home
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('schedule')}
-          className={view === 'schedule' ? 'active' : ''}
+        </Link>
+        <Link
+          href="/schedule"
+          className={currentView === 'schedule' ? 'active' : ''}
+          onClick={() => setView?.('schedule')}
         >
           Schedule
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('tasks')}
-          className={view === 'tasks' ? 'active' : ''}
+        </Link>
+        <Link
+          href="/tasks"
+          className={currentView === 'tasks' ? 'active' : ''}
+          onClick={() => setView?.('tasks')}
         >
-          Tasks {overdueCount > 0 && <span className="nav-count-badge alert">{overdueCount}</span>}
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('memory')}
-          className={view === 'memory' ? 'active' : ''}
+          <span>Tasks</span>
+          {overdueCount > 0 && <span className="nav-count-badge alert">{overdueCount}</span>}
+        </Link>
+        <Link
+          href="/memory"
+          className={currentView === 'memory' ? 'active' : ''}
+          onClick={() => setView?.('memory')}
         >
           Memory
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('ai')}
-          className={view === 'ai' ? 'active' : ''}
+        </Link>
+        <Link
+          href="/ai"
+          className={currentView === 'ai' ? 'active' : ''}
+          onClick={() => setView?.('ai')}
         >
           AI Assistant
-        </button>
+        </Link>
       </nav>
 
       {/* Right Utility Actions */}

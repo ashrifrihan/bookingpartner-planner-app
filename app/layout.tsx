@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';
+import { PlannerProvider } from '@/context/PlannerContext';
+import { AppShell } from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'BookingPartner Backend Planner',
@@ -54,7 +56,11 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <PlannerProvider>
+          <AppShell>{children}</AppShell>
+        </PlannerProvider>
+      </body>
     </html>
   );
 }

@@ -182,7 +182,8 @@ button {
   box-shadow: var(--card-shadow);
 }
 
-.header-nav-capsule button {
+.header-nav-capsule button,
+.header-nav-capsule a {
   border: 0;
   background: transparent;
   color: var(--ink-secondary);
@@ -192,13 +193,19 @@ button {
   font-weight: 600;
   transition: all 0.18s ease;
   white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.header-nav-capsule button:hover {
+.header-nav-capsule button:hover,
+.header-nav-capsule a:hover {
   color: var(--ink-primary);
 }
 
-.header-nav-capsule button.active {
+.header-nav-capsule button.active,
+.header-nav-capsule a.active {
   background: var(--purple-brand);
   color: #ffffff;
 }
@@ -1065,7 +1072,8 @@ button {
   max-width: 100%;
 }
 
-.dock-item {
+.dock-item,
+a.dock-item {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1079,6 +1087,7 @@ button {
   gap: 3px;
   min-height: 46px;
   min-width: 44px;
+  text-decoration: none;
 }
 
 .dock-item svg {

@@ -18,6 +18,8 @@ export type DeveloperMemoryItem = {
   createdAt: string;
 };
 
+export type MemoryNote = DeveloperMemoryItem;
+
 export type TaskStatusReason = 'not_started' | 'blocked' | 'need_more_time' | 'no_longer_needed' | 'custom';
 
 export type TaskReason = {

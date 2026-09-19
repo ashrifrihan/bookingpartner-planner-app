@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import type { ThemeMode } from '@/lib/storage';
 
 export type PlannerNavView = 'home' | 'schedule' | 'tasks' | 'memory' | 'ai';
@@ -13,63 +15,72 @@ export function NavigationDock({
   memoryCount = 0,
   onOpenAction,
 }: {
-  view: PlannerNavView;
-  setView: (view: PlannerNavView) => void;
+  view?: PlannerNavView;
+  setView?: (view: PlannerNavView) => void;
   theme: ThemeMode;
   toggleTheme: () => void;
   overdueCount?: number;
   memoryCount?: number;
   onOpenAction?: () => void;
 }) {
+  const pathname = usePathname();
+  const currentView: PlannerNavView =
+    pathname === '/' ? 'home' :
+    pathname.startsWith('/schedule') ? 'schedule' :
+    pathname.startsWith('/tasks') ? 'tasks' :
+    pathname.startsWith('/memory') ? 'memory' :
+    pathname.startsWith('/ai') ? 'ai' :
+    (view || 'home');
+
   return (
     <div className="dock-wrapper">
       <nav className="floating-dock" aria-label="Mobile bottom navigation">
-        <button
-          type="button"
-          className={`dock-item ${view === 'home' ? 'active' : ''}`}
-          onClick={() => setView('home')}
+        <Link
+          href="/"
+          className={`dock-item ${currentView === 'home' ? 'active' : ''}`}
+          onClick={() => setView?.('home')}
         >
           <HomeIcon />
           <span>Home</span>
-        </button>
+        </Link>
 
-        <button
-          type="button"
-          className={`dock-item ${view === 'schedule' ? 'active' : ''}`}
-          onClick={() => setView('schedule')}
+        <Link
+          href="/schedule"
+          className={`dock-item ${currentView === 'schedule' ? 'active' : ''}`}
+          onClick={() => setView?.('schedule')}
         >
           <CalendarIcon />
           <span>Schedule</span>
-        </button>
+        </Link>
 
-        <button
-          type="button"
-          className={`dock-item ${view === 'tasks' ? 'active' : ''}`}
-          onClick={() => setView('tasks')}
+        <Link
+          href="/tasks"
+          className={`dock-item ${currentView === 'tasks' ? 'active' : ''}`}
+          onClick={() => setView?.('tasks')}
         >
           <GridIcon />
           <span>Tasks</span>
           {overdueCount > 0 && <span className="dock-badge alert">{overdueCount}</span>}
-        </button>
+        </Link>
 
-        <button
-          type="button"
-          className={`dock-item ${view === 'memory' ? 'active' : ''}`}
-          onClick={() => setView('memory')}
+        <Link
+          href="/memory"
+          className={`dock-item ${currentView === 'memory' ? 'active' : ''}`}
+          onClick={() => setView?.('memory')}
         >
           <BrainIcon />
           <span>Memory</span>
           {memoryCount > 0 && <span className="dock-badge">{memoryCount}</span>}
-        </button>
+        </Link>
 
-        <button
-          type="button"
-          className={`dock-item ${view === 'ai' ? 'active' : ''}`}
-          onClick={() => setView('ai')}
+        <Link
+          href="/ai"
+          className={`dock-item ${currentView === 'ai' ? 'active' : ''}`}
+          onClick={() => setView?.('ai')}
         >
           <SparkIcon />
           <span>AI</span>
-        </button>
+        </Link>
 
         <div className="dock-separator" />
 
@@ -134,16 +145,6 @@ function GridIcon() {
       <rect width="7" height="7" x="14" y="3" rx="1" />
       <rect width="7" height="7" x="14" y="14" rx="1" />
       <rect width="7" height="7" x="3" y="14" rx="1" />
-    </svg>
-  );
-}
-
-function AlertCircleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
   );
 }
