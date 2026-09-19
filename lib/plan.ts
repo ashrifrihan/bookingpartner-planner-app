@@ -25,1265 +25,1145 @@ export function computeDateForOffset(startDate: string, offsetDays: number): str
 
 export const planTemplates: PlanTaskTemplate[] = [
   {
-    "dayOffset": 0,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 1,
-    "title": "Local PostgreSQL setup",
-    "items": [
-      "Install PostgreSQL on your laptop",
-      "Create database bookingpartner_dev",
-      "Create .env.local from the example",
-      "Run Prisma migration",
-      "Open pgAdmin and confirm your tables exist"
-    ],
-    "doneWhen": "Your local database opens and Prisma can connect without errors."
-  },
-  {
-    "dayOffset": 1,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 2,
-    "title": "Prisma & login setup",
-    "items": [
-      "Create lib/prisma.ts singleton",
-      "Create authentication configuration",
-      "Create /api/auth/[...nextauth]/route.ts",
-      "Create one test user",
-      "Sign in and confirm the session is available"
-    ],
-    "doneWhen": "A test user can log in and a server route can read the session."
-  },
-  {
-    "dayOffset": 2,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 3,
-    "title": "Route protection",
-    "items": [
-      "Create src/middleware.ts",
-      "Block logged-out users from /owner",
-      "Block customers from /admin",
-      "Add role-based redirects",
-      "Test each role in a private browser window"
-    ],
-    "doneWhen": "Wrong users receive 401/403 or a safe redirect."
-  },
-  {
-    "dayOffset": 3,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 4,
-    "title": "Realtime setup",
-    "items": [
-      "Create a Pusher account",
-      "Add server and browser keys",
-      "Install pusher and pusher-js",
-      "Create server/client helper files",
-      "Open two seat-map tabs and test a live update"
-    ],
-    "doneWhen": "A change in one tab appears in the other without refresh."
-  },
-  {
-    "dayOffset": 4,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 5,
-    "title": "Email setup",
-    "items": [
-      "Create a Resend account",
-      "Add the API key to .env.local",
-      "Create lib/email.ts",
-      "Write sendBookingConfirmation()",
-      "Send a test message to your own inbox"
-    ],
-    "doneWhen": "A test booking email arrives successfully."
-  },
-  {
-    "dayOffset": 5,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 6,
-    "title": "PayHere sandbox setup",
-    "items": [
-      "Create or open a PayHere sandbox merchant account",
-      "Add merchant ID and sandbox secret",
-      "Create lib/payhere.ts",
-      "Write generatePayHereData()",
-      "Log generated form data for one fake booking"
-    ],
-    "doneWhen": "The backend creates valid-looking sandbox payment data."
-  },
-  {
-    "dayOffset": 6,
-    "week": 1,
-    "phase": "Setup & Foundation",
-    "dayInWeek": 7,
-    "title": "PayHere verification",
-    "items": [
-      "Write verifyPayHereWebhook()",
-      "Reject a deliberately wrong signature",
-      "Accept a valid test signature",
-      "Log failed verification attempts",
-      "Document the fields you trust only after verification"
-    ],
-    "doneWhen": "Invalid payment callbacks are rejected before any booking changes."
-  },
-  {
-    "dayOffset": 7,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 1,
-    "title": "Customer registration",
-    "items": [
-      "Create POST /api/v1/auth/register",
-      "Validate name, email and password",
-      "Hash the password",
-      "Create the user record",
-      "Return safe errors without exposing secrets"
-    ],
-    "doneWhen": "A valid customer is created and invalid input is rejected."
-  },
-  {
-    "dayOffset": 8,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 2,
-    "title": "Verification email",
-    "items": [
-      "Create a verification token",
-      "Store token expiry",
-      "Send verification email",
-      "Add a simple verification link",
-      "Test an expired token case"
-    ],
-    "doneWhen": "A new account receives a working verification link."
-  },
-  {
-    "dayOffset": 9,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 3,
-    "title": "Verify email endpoint",
-    "items": [
-      "Create GET /api/v1/auth/verify-email",
-      "Find the token",
-      "Check expiry",
-      "Mark the user verified",
-      "Redirect to login with a clear result"
-    ],
-    "doneWhen": "Opening a valid link marks the correct user as verified."
-  },
-  {
-    "dayOffset": 10,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 4,
-    "title": "Owner OTP - send",
-    "items": [
-      "Create POST /api/v1/owner-auth/send-otp",
-      "Validate phone/email target",
-      "Generate short-lived OTP",
-      "Store only what you need",
-      "Add resend/rate-limit rules"
-    ],
-    "doneWhen": "A valid owner can request an OTP without unlimited spam."
-  },
-  {
-    "dayOffset": 11,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 5,
-    "title": "Owner OTP - verify & register",
-    "items": [
-      "Create verify-otp endpoint",
-      "Reject wrong or expired OTP",
-      "Create owner registration endpoint",
-      "Link owner profile to user",
-      "Test the complete owner signup flow"
-    ],
-    "doneWhen": "A new owner can complete OTP registration end to end."
-  },
-  {
-    "dayOffset": 12,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 6,
-    "title": "Password recovery",
-    "items": [
-      "Create forgot-password endpoint",
-      "Create reset token with expiry",
-      "Send reset email",
-      "Create reset-password endpoint",
-      "Invalidate the token after use"
-    ],
-    "doneWhen": "A customer can reset a forgotten password once per token."
-  },
-  {
-    "dayOffset": 13,
-    "week": 2,
-    "phase": "Authentication & Users",
-    "dayInWeek": 7,
-    "title": "Auth test day",
-    "items": [
-      "Test customer registration",
-      "Test owner registration",
-      "Test login/logout",
-      "Test email verification and password reset",
-      "Standardize error responses for every auth route"
-    ],
-    "doneWhen": "All auth journeys work without manual database edits."
-  },
-  {
-    "dayOffset": 14,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 1,
-    "title": "Cities API",
-    "items": [
-      "Create GET /api/v1/cities",
-      "Return active cities only",
-      "Sort names for dropdowns",
-      "Add basic caching if useful",
-      "Connect one frontend city dropdown"
-    ],
-    "doneWhen": "The frontend can load active cities from the real API."
-  },
-  {
-    "dayOffset": 15,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 2,
-    "title": "Routes & search",
-    "items": [
-      "Create GET /api/v1/routes",
-      "Include from/to city data",
-      "Create GET /api/v1/search",
-      "Filter by from, to and date",
-      "Return seat count and price for each schedule"
-    ],
-    "doneWhen": "Searching a real route returns matching schedules."
-  },
-  {
-    "dayOffset": 16,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 3,
-    "title": "Owner bus list & create",
-    "items": [
-      "Create GET /api/v1/owner/buses",
-      "Scope buses to the logged-in owner",
-      "Create POST /api/v1/owner/buses",
-      "Validate bus fields",
-      "Test creating two sample buses"
-    ],
-    "doneWhen": "An owner sees only their buses and can add one."
-  },
-  {
-    "dayOffset": 17,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 4,
-    "title": "Bus detail & edit",
-    "items": [
-      "Create GET /api/v1/owner/buses/[id]",
-      "Check ownership before returning data",
-      "Create PATCH endpoint",
-      "Validate editable fields",
-      "Test another owner cannot edit the bus"
-    ],
-    "doneWhen": "Bus detail/edit is owner-scoped and secure."
-  },
-  {
-    "dayOffset": 18,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 5,
-    "title": "Seat layout API",
-    "items": [
-      "Create GET /api/v1/buses/[id]/seats",
-      "Create POST save-seat-layout endpoint",
-      "Store seat type and position",
-      "Reject duplicate seat numbers",
-      "Load the saved layout in the frontend"
-    ],
-    "doneWhen": "A saved seat layout returns exactly the same shape."
-  },
-  {
-    "dayOffset": 19,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 6,
-    "title": "Automatic seat numbers",
-    "items": [
-      "Write automatic seat-number generation",
-      "Test common 2+2 layout",
-      "Test 2+1 layout",
-      "Test missing/blocked positions",
-      "Make numbering deterministic"
-    ],
-    "doneWhen": "All supported layouts generate stable unique seat numbers."
-  },
-  {
-    "dayOffset": 20,
-    "week": 3,
-    "phase": "Cities, Routes & Buses",
-    "dayInWeek": 7,
-    "title": "Bus API test day",
-    "items": [
-      "Test city endpoints",
-      "Test route/search endpoints",
-      "Test bus CRUD",
-      "Test every seat layout type",
-      "Fix validation and data-shape bugs"
-    ],
-    "doneWhen": "The buses/routes area can run without mock data."
-  },
-  {
-    "dayOffset": 21,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 1,
-    "title": "Create schedule",
-    "items": [
-      "Create POST /api/v1/owner/schedules",
-      "Validate route, bus, date and time",
-      "Save the schedule",
-      "Generate schedule-seat rows",
-      "Return the new schedule ID"
-    ],
-    "doneWhen": "Creating one schedule also creates its seat inventory."
-  },
-  {
-    "dayOffset": 22,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 2,
-    "title": "Schedule list",
-    "items": [
-      "Create GET /api/v1/owner/schedules",
-      "Scope to owner",
-      "Filter by bus",
-      "Filter by date and status",
-      "Connect the owner schedule list UI"
-    ],
-    "doneWhen": "Owner schedule filtering works with real data."
-  },
-  {
-    "dayOffset": 23,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 3,
-    "title": "Schedule detail",
-    "items": [
-      "Create GET /api/v1/owner/schedules/[id]",
-      "Return route and bus details",
-      "Return live seat counts",
-      "Check owner scope",
-      "Handle missing schedules cleanly"
-    ],
-    "doneWhen": "The detail screen gets all required data in one response."
-  },
-  {
-    "dayOffset": 24,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 4,
-    "title": "Repeat schedules",
-    "items": [
-      "Support daily repeats",
-      "Support weekly repeats",
-      "Create separate schedule rows",
-      "Link them with repeat_group_id",
-      "Generate seats for every repeated schedule"
-    ],
-    "doneWhen": "A repeat request creates the expected future schedules and seats."
-  },
-  {
-    "dayOffset": 25,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 5,
-    "title": "Conflict detection",
-    "items": [
-      "Check the same bus on the same date",
-      "Compare schedule times",
-      "Return a warning instead of a hard error",
-      "Show warning in the UI",
-      "Test overlapping and non-overlapping cases"
-    ],
-    "doneWhen": "Owners see a clear conflict warning before saving risky times."
-  },
-  {
-    "dayOffset": 26,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 6,
-    "title": "Change departure time",
-    "items": [
-      "Create update-time endpoint",
-      "Allow later time changes",
-      "Block disallowed earlier moves",
-      "Find confirmed passengers",
-      "Send a schedule-change notification"
-    ],
-    "doneWhen": "A valid time change updates data and notifies affected passengers."
-  },
-  {
-    "dayOffset": 27,
-    "week": 4,
-    "phase": "Schedules",
-    "dayInWeek": 7,
-    "title": "Cancel & manifest",
-    "items": [
-      "Create schedule cancel endpoint",
-      "Handle zero-booking cancellation",
-      "Block cancellation inside your cutoff",
-      "Refund eligible bookings to wallet",
-      "Create passenger manifest endpoint/PDF data"
-    ],
-    "doneWhen": "Cancellation rules and passenger manifest both work on test schedules."
-  },
-  {
-    "dayOffset": 28,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 1,
-    "title": "Atomic seat lock",
-    "items": [
-      "Create POST /api/v1/seats/lock",
-      "Update only when seat is available",
-      "Store locked_by",
-      "Store locked_until for 10 minutes",
-      "Return 409 when another user already owns it"
-    ],
-    "doneWhen": "Two users cannot successfully lock the same seat."
-  },
-  {
-    "dayOffset": 29,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 2,
-    "title": "Seat release",
-    "items": [
-      "Create POST /api/v1/seats/release",
-      "Check current user owns the lock",
-      "Set seat back to available",
-      "Clear lock fields",
-      "Broadcast release event"
-    ],
-    "doneWhen": "Only the lock owner can manually release that seat."
-  },
-  {
-    "dayOffset": 30,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 3,
-    "title": "Expired-lock cron",
-    "items": [
-      "Create POST /api/cron/release-locks",
-      "Find expired locks",
-      "Release them safely",
-      "Return count released",
-      "Test by creating an already-expired lock"
-    ],
-    "doneWhen": "Expired seats return to available automatically when cron runs."
-  },
-  {
-    "dayOffset": 31,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 4,
-    "title": "Protect cron & broadcast",
-    "items": [
-      "Verify CRON_SECRET",
-      "Reject missing/wrong secret",
-      "Broadcast each released seat",
-      "Avoid exposing secret in client code",
-      "Add simple cron logging"
-    ],
-    "doneWhen": "Only an authorized cron request can release expired locks."
-  },
-  {
-    "dayOffset": 32,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 5,
-    "title": "Seat-view API",
-    "items": [
-      "Create GET /api/v1/seats/[scheduleId]",
-      "Return current seat status",
-      "Include remaining lock time where safe",
-      "Sort seats for the map",
-      "Connect initial seat-map load"
-    ],
-    "doneWhen": "Opening a schedule immediately shows its current seat state."
-  },
-  {
-    "dayOffset": 33,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 6,
-    "title": "Two-browser realtime test",
-    "items": [
-      "Open two separate browser sessions",
-      "Lock a seat in browser A",
-      "Confirm browser B updates",
-      "Release/expire the lock",
-      "Confirm both screens become available again"
-    ],
-    "doneWhen": "Realtime changes appear without refresh in both sessions."
-  },
-  {
-    "dayOffset": 34,
-    "week": 5,
-    "phase": "Seat Locking & Realtime",
-    "dayInWeek": 7,
-    "title": "Concurrency edge cases",
-    "items": [
-      "Simulate simultaneous lock requests",
-      "Confirm only one succeeds",
-      "Verify unique/database constraints",
-      "Test stale UI clicks",
-      "Record and fix any race-condition bug"
-    ],
-    "doneWhen": "Database rules remain correct even under simultaneous clicks."
-  },
-  {
-    "dayOffset": 35,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 1,
-    "title": "Create pending booking",
-    "items": [
-      "Create POST /api/v1/bookings",
-      "Verify user owns the seat lock",
-      "Create booking with pending status",
-      "Generate PayHere form data",
-      "Return only browser-safe payment fields"
-    ],
-    "doneWhen": "A locked seat can create exactly one pending booking."
-  },
-  {
-    "dayOffset": 36,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 2,
-    "title": "Payment webhook verification",
-    "items": [
-      "Create POST /api/v1/payments/webhook",
-      "Verify signature before changes",
-      "Reject bad signatures with 400",
-      "Make webhook safe to receive twice",
-      "Log payment reference and result"
-    ],
-    "doneWhen": "Fake callbacks cannot confirm a booking and duplicates are harmless."
-  },
-  {
-    "dayOffset": 37,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 3,
-    "title": "Confirm booking transaction",
-    "items": [
-      "Mark payment successful",
-      "Mark booking confirmed",
-      "Mark seat booked",
-      "Create payout record",
-      "Keep related changes in one database transaction where possible"
-    ],
-    "doneWhen": "A valid payment leaves booking, seat and payout records consistent."
-  },
-  {
-    "dayOffset": 38,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 4,
-    "title": "Confirmation messages",
-    "items": [
-      "Send confirmation email",
-      "Send confirmation SMS",
-      "Broadcast booked seat",
-      "Create in-app notification",
-      "Handle email/SMS failure without undoing payment"
-    ],
-    "doneWhen": "Payment confirmation succeeds even if a message provider is temporarily down."
-  },
-  {
-    "dayOffset": 39,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 5,
-    "title": "Wallet",
-    "items": [
-      "Apply wallet credit before PayHere amount",
-      "Store wallet transaction",
-      "Update wallet balance safely",
-      "Prevent negative wallet balance",
-      "Test full-wallet and partial-wallet payments"
-    ],
-    "doneWhen": "Wallet totals remain correct for both full and partial use."
-  },
-  {
-    "dayOffset": 40,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 6,
-    "title": "Booking list & detail",
-    "items": [
-      "Create GET /api/v1/bookings",
-      "Filter by current customer",
-      "Create GET /api/v1/bookings/[id]",
-      "Filter by booking ID plus customer ID",
-      "Test guessed booking IDs"
-    ],
-    "doneWhen": "Customer A cannot read Customer B's booking."
-  },
-  {
-    "dayOffset": 41,
-    "week": 6,
-    "phase": "Payments & Bookings",
-    "dayInWeek": 7,
-    "title": "Cancellation & ticket",
-    "items": [
-      "Create booking cancel endpoint",
-      "Use policy snapshot to calculate refund",
-      "Credit wallet and release seat",
-      "Send cancellation messages",
-      "Create ticket PDF endpoint with QR data"
-    ],
-    "doneWhen": "Cancellation, refund, seat release and ticket access all follow ownership rules."
-  },
-  {
-    "dayOffset": 42,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 1,
-    "title": "Owner earnings",
-    "items": [
-      "Create GET /api/v1/owner/earnings",
-      "Calculate pending payouts",
-      "Calculate sent payouts",
-      "Calculate totals",
-      "Group earnings by trip"
-    ],
-    "doneWhen": "Dashboard totals match test payout rows."
-  },
-  {
-    "dayOffset": 43,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 2,
-    "title": "Owner payouts",
-    "items": [
-      "Create GET /api/v1/owner/payouts",
-      "Return per-trip breakdown",
-      "Include payout status",
-      "Add pagination",
-      "Connect payout cards"
-    ],
-    "doneWhen": "Owner sees only their own payout history."
-  },
-  {
-    "dayOffset": 44,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 3,
-    "title": "Employees - invite/list",
-    "items": [
-      "Create employee invite endpoint",
-      "Send invitation email",
-      "Create employee list endpoint",
-      "Show active/invited state",
-      "Prevent duplicate invitations"
-    ],
-    "doneWhen": "An owner can invite and see a new employee."
-  },
-  {
-    "dayOffset": 45,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 4,
-    "title": "Employees - permissions",
-    "items": [
-      "Create assign endpoint",
-      "Link employee to buses",
-      "Create permission update endpoint",
-      "Create deactivate endpoint",
-      "Test employee cannot access unassigned bus"
-    ],
-    "doneWhen": "Employee access follows assigned buses and permissions."
-  },
-  {
-    "dayOffset": 46,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 5,
-    "title": "Owner settings - company/bank",
-    "items": [
-      "Create company settings endpoint",
-      "Create bank-change request endpoint",
-      "Validate required business details",
-      "Do not expose sensitive bank data unnecessarily",
-      "Connect settings form"
-    ],
-    "doneWhen": "Owner can save company data and submit a bank-change request."
-  },
-  {
-    "dayOffset": 47,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 6,
-    "title": "Owner settings - policy/security",
-    "items": [
-      "Create refund-policy endpoint",
-      "Create notification settings endpoint",
-      "Create password-change endpoint",
-      "Require current password for sensitive change",
-      "Test invalid password case"
-    ],
-    "doneWhen": "Sensitive settings changes require proper authentication."
-  },
-  {
-    "dayOffset": 48,
-    "week": 7,
-    "phase": "Owner Operations",
-    "dayInWeek": 7,
-    "title": "Manual booking",
-    "items": [
-      "Create POST /api/v1/owner/bookings",
-      "Mark is_manual = true",
-      "Do not create online payment",
-      "Do not charge commission if that is your rule",
-      "Reserve the selected seat safely"
-    ],
-    "doneWhen": "Owner walk-in booking appears correctly without online payment."
-  },
-  {
-    "dayOffset": 49,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 1,
-    "title": "Admin owner list",
-    "items": [
-      "Create GET /api/v1/admin/owners",
-      "Require admin role",
-      "Paginate results",
-      "Add useful filters",
-      "Return safe owner summary fields"
-    ],
-    "doneWhen": "Admin can browse owners without leaking unrelated secrets."
-  },
-  {
-    "dayOffset": 50,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 2,
-    "title": "Owner moderation & audit",
-    "items": [
-      "Create approve/reject/suspend endpoint",
-      "Validate allowed state changes",
-      "Write every action to audit_logs",
-      "Store acting admin ID",
-      "Test non-admin receives 403"
-    ],
-    "doneWhen": "Every moderation action has an audit trail."
-  },
-  {
-    "dayOffset": 51,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 3,
-    "title": "Bus verification",
-    "items": [
-      "Create GET /api/v1/admin/buses",
-      "Filter pending buses",
-      "Create approve/reject action",
-      "Store review notes",
-      "Notify owner after decision"
-    ],
-    "doneWhen": "Pending bus verification can be completed by admins only."
-  },
-  {
-    "dayOffset": 52,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 4,
-    "title": "Admin payouts - list/bulk",
-    "items": [
-      "Create GET /api/v1/admin/payouts",
-      "Add status filters",
-      "Create release-all action",
-      "Skip ineligible payouts",
-      "Return released/skipped counts"
-    ],
-    "doneWhen": "Bulk payout release only changes eligible records."
-  },
-  {
-    "dayOffset": 53,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 5,
-    "title": "Admin payout action",
-    "items": [
-      "Create payout release action",
-      "Create withhold action",
-      "Require reason for withhold",
-      "Write audit log",
-      "Notify affected owner"
-    ],
-    "doneWhen": "Single payout decisions are traceable and reversible by policy."
-  },
-  {
-    "dayOffset": 54,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 6,
-    "title": "Reports centre",
-    "items": [
-      "Create GET /api/v1/admin/reports",
-      "Create reply endpoint",
-      "Create status endpoint",
-      "Store admin responder",
-      "Test report lifecycle"
-    ],
-    "doneWhen": "Admin can read, reply to and close a report."
-  },
-  {
-    "dayOffset": 55,
-    "week": 8,
-    "phase": "Admin APIs",
-    "dayInWeek": 7,
-    "title": "Admin analytics",
-    "items": [
-      "Create GET /api/v1/admin/analytics",
-      "Bookings per day",
-      "Revenue breakdown",
-      "Top routes",
-      "Use indexed/date-bounded queries"
-    ],
-    "doneWhen": "Admin analytics returns correct totals on seeded test data."
-  },
-  {
-    "dayOffset": 56,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 1,
-    "title": "Management schedules",
-    "items": [
-      "Create management schedule list",
-      "Create management schedule creation",
-      "Require management role",
-      "Scope to creator's owner",
-      "Test cross-owner request"
-    ],
-    "doneWhen": "Management can work only inside the correct owner's data."
-  },
-  {
-    "dayOffset": 57,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 2,
-    "title": "Management bookings",
-    "items": [
-      "Create management booking list",
-      "Create walk-in booking",
-      "Reuse seat-lock safety",
-      "Mark booking source",
-      "Test access scope"
-    ],
-    "doneWhen": "Management walk-ins cannot touch another owner's inventory."
-  },
-  {
-    "dayOffset": 58,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 3,
-    "title": "Management buses",
-    "items": [
-      "Create management bus endpoint",
-      "Return assigned buses only",
-      "Apply employee permissions",
-      "Hide owner-only financial fields",
-      "Test suspended user"
-    ],
-    "doneWhen": "Management sees only the buses and fields they are allowed to use."
-  },
-  {
-    "dayOffset": 59,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 4,
-    "title": "Transfers - request/preview",
-    "items": [
-      "Create transfer request endpoint",
-      "Generate short-lived transfer code",
-      "Create preview endpoint",
-      "Hide unnecessary personal data",
-      "Set two-hour expiry"
-    ],
-    "doneWhen": "A valid code can safely preview the intended transfer."
-  },
-  {
-    "dayOffset": 60,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 5,
-    "title": "Transfers - accept/decline",
-    "items": [
-      "Create accept endpoint",
-      "Create decline endpoint",
-      "Ensure only intended recipient accepts",
-      "Change booking ownership safely",
-      "Invalidate code after final action"
-    ],
-    "doneWhen": "A transfer code can be completed only once by the correct user."
-  },
-  {
-    "dayOffset": 61,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 6,
-    "title": "Transfer expiry & reviews",
-    "items": [
-      "Create cron to expire old transfers",
-      "Create review POST endpoint",
-      "Allow reviews only after travel date",
-      "Create bus review list",
-      "Calculate average rating"
-    ],
-    "doneWhen": "Expired transfers close automatically and only travelled users can review."
-  },
-  {
-    "dayOffset": 62,
-    "week": 9,
-    "phase": "Management, Transfers & Reviews",
-    "dayInWeek": 7,
-    "title": "Notifications",
-    "items": [
-      "Create GET /api/v1/notifications",
-      "Create mark-read endpoint",
-      "Verify earlier flows create notifications",
-      "Add unread count",
-      "Test booking, cancellation and schedule-change notifications"
-    ],
-    "doneWhen": "Important user actions produce visible, readable notifications."
-  },
-  {
-    "dayOffset": 63,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 1,
-    "title": "API inventory test",
-    "items": [
-      "Make a list of every endpoint",
-      "Test happy path for each",
-      "Test validation errors",
-      "Test missing resources",
-      "Record remaining bugs"
-    ],
-    "doneWhen": "Every endpoint has at least one passing success and failure test."
-  },
-  {
-    "dayOffset": 64,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 2,
-    "title": "IDOR security test",
-    "items": [
-      "Create two customer accounts",
-      "Try Customer A's IDs as Customer B",
-      "Test booking detail",
-      "Test ticket download",
-      "Test cancellations and transfers"
-    ],
-    "doneWhen": "Guessing another customer's ID never exposes or changes their data."
-  },
-  {
-    "dayOffset": 65,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 3,
-    "title": "Role security test",
-    "items": [
-      "Test customer against owner routes",
-      "Test management against earnings",
-      "Test owner against admin",
-      "Test logged-out requests",
-      "Fix every unexpected 200 response"
-    ],
-    "doneWhen": "Every protected route returns the correct 401/403 result."
-  },
-  {
-    "dayOffset": 66,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 4,
-    "title": "PayHere sandbox E2E",
-    "items": [
-      "Run successful sandbox payment",
-      "Run failed payment",
-      "Run cancelled payment",
-      "Replay the webhook",
-      "Check database consistency after each"
-    ],
-    "doneWhen": "Payment status always matches booking and seat status."
-  },
-  {
-    "dayOffset": 67,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 5,
-    "title": "Concurrency & cron test",
-    "items": [
-      "Run simultaneous seat-lock requests",
-      "Run lock-release cron",
-      "Run transfer-expiry cron",
-      "Test retries",
-      "Review logs for duplicate side effects"
-    ],
-    "doneWhen": "Concurrent/repeated jobs do not create duplicate business actions."
-  },
-  {
-    "dayOffset": 68,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 6,
-    "title": "Connect frontend",
-    "items": [
-      "Replace remaining mock data",
-      "Connect search",
-      "Connect owner/admin pages",
-      "Fix API response shape mismatches",
-      "Add user-friendly loading/error states"
-    ],
-    "doneWhen": "Core screens use real APIs instead of hard-coded demo data."
-  },
-  {
-    "dayOffset": 69,
-    "week": 10,
-    "phase": "Security, Testing & Integration",
-    "dayInWeek": 7,
-    "title": "Customer E2E",
-    "items": [
-      "Register",
-      "Search",
-      "Select and lock seat",
-      "Pay in sandbox",
-      "Confirm email/SMS and dashboard booking"
-    ],
-    "doneWhen": "The complete customer journey works without manual intervention."
-  },
-  {
-    "dayOffset": 70,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 1,
-    "title": "Vercel setup",
-    "items": [
-      "Push clean code to GitHub",
-      "Create Vercel project",
-      "Connect production branch",
-      "Check build command",
-      "Deploy a first production preview"
-    ],
-    "doneWhen": "The app builds successfully on Vercel."
-  },
-  {
-    "dayOffset": 71,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 2,
-    "title": "Production PostgreSQL",
-    "items": [
-      "Create Railway PostgreSQL",
-      "Copy production connection string securely",
-      "Set connection pooling if needed",
-      "Restrict who can see credentials",
-      "Test connection from a safe environment"
-    ],
-    "doneWhen": "Production app can connect to the production database."
-  },
-  {
-    "dayOffset": 72,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 3,
-    "title": "Deploy migrations",
-    "items": [
-      "Review pending migrations",
-      "Back up before changing existing data",
-      "Run prisma migrate deploy",
-      "Run prisma generate in build",
-      "Verify expected production tables"
-    ],
-    "doneWhen": "Production schema matches the application schema."
-  },
-  {
-    "dayOffset": 73,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 4,
-    "title": "Production environment variables",
-    "items": [
-      "Set auth secrets",
-      "Set database URL",
-      "Set Pusher keys",
-      "Set PayHere/Resend/SMS keys",
-      "Set CRON_SECRET and public app URL"
-    ],
-    "doneWhen": "Production has all required variables and no secret is exposed client-side."
-  },
-  {
-    "dayOffset": 74,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 5,
-    "title": "Production smoke test",
-    "items": [
-      "Open public homepage",
-      "Log in with test account",
-      "Run search",
-      "Open owner dashboard",
-      "Check database and realtime connectivity"
-    ],
-    "doneWhen": "Main screens work on the production URL."
-  },
-  {
-    "dayOffset": 75,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 6,
-    "title": "Logs & failure handling",
-    "items": [
-      "Check Vercel logs",
-      "Check database logs/metrics",
-      "Add useful server error logging",
-      "Confirm provider failures are visible",
-      "Remove noisy secret-bearing logs"
-    ],
-    "doneWhen": "You can diagnose failures without leaking sensitive values."
-  },
-  {
-    "dayOffset": 76,
-    "week": 11,
-    "phase": "Production Preparation",
-    "dayInWeek": 7,
-    "title": "Production security pass",
-    "items": [
-      "Review RLS/role checks",
-      "Review webhook signature verification",
-      "Review cron secret",
-      "Review environment exposure",
-      "Review rate limits on sensitive actions"
-    ],
-    "doneWhen": "No known high-risk security issue remains before onboarding an operator."
-  },
-  {
-    "dayOffset": 77,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 1,
-    "title": "Onboard first operator",
-    "items": [
-      "Create the operator account",
-      "Enter company details",
-      "Add first bus",
-      "Configure seat layout",
-      "Confirm owner can log in"
-    ],
-    "doneWhen": "The first real operator can access a correctly configured account."
-  },
-  {
-    "dayOffset": 78,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 2,
-    "title": "Configure routes",
-    "items": [
-      "Add operator routes",
-      "Add prices",
-      "Add departure points",
-      "Create first schedules",
-      "Double-check dates and times"
-    ],
-    "doneWhen": "The operator's real services appear in search as intended."
-  },
-  {
-    "dayOffset": 79,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 3,
-    "title": "Pilot seat-map test",
-    "items": [
-      "Open real schedule",
-      "Check every seat label",
-      "Lock/release from two devices",
-      "Check owner view",
-      "Fix layout mistakes before taking money"
-    ],
-    "doneWhen": "Live seat state is correct on customer and owner screens."
-  },
-  {
-    "dayOffset": 80,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 4,
-    "title": "Real-money controlled test",
-    "items": [
-      "Use a small controlled booking",
-      "Verify PayHere payment result",
-      "Verify booking confirmation",
-      "Verify payout record",
-      "Keep proof/reference for reconciliation"
-    ],
-    "doneWhen": "One controlled live payment reconciles correctly end to end."
-  },
-  {
-    "dayOffset": 81,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 5,
-    "title": "Messages & cancellation test",
-    "items": [
-      "Verify real confirmation email",
-      "Verify real SMS",
-      "Test ticket access",
-      "Test allowed cancellation/refund path",
-      "Check wallet result"
-    ],
-    "doneWhen": "The real customer communication and refund path behave correctly."
-  },
-  {
-    "dayOffset": 82,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 6,
-    "title": "Fix & second operator",
-    "items": [
-      "Fix pilot bugs",
-      "Repeat critical tests",
-      "Onboard a second operator",
-      "Compare configuration differences",
-      "Freeze risky new features for launch"
-    ],
-    "doneWhen": "Two operators can use the same production system reliably."
-  },
-  {
-    "dayOffset": 83,
-    "week": 12,
-    "phase": "Pilot & Soft Launch",
-    "dayInWeek": 7,
-    "title": "Soft launch",
-    "items": [
-      "Take a fresh database backup",
-      "Confirm monitoring/log access",
-      "Confirm support contact process",
-      "Open service to the pilot audience",
-      "Review the first bookings carefully"
-    ],
-    "doneWhen": "BookingPartner is live for a controlled audience with support and rollback options ready."
-  }
+    dayOffset: 0,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 1,
+    title: "Confirm database baseline",
+    items: [
+          "Install PostgreSQL on your laptop",
+          "Create bookingpartner_dev",
+          "Prepare .env.local with development values",
+          "Run the reviewed Prisma migration",
+          "Open pgAdmin and confirm existing tables"
+    ],
+    doneWhen: "No migration drift or unexpected data loss."
+  },
+  {
+    dayOffset: 1,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 2,
+    title: "Inspect and connect Prisma",
+    items: [
+          "Review package.json, prisma/schema.prisma and prisma7.config.ts",
+          "Check existing Prisma migrations, src/proxy.ts and Owner API routes",
+          "Create Prisma 7-compatible client in src/backend/infrastructure/database/",
+          "Test one safe query against bookingpartner_dev",
+          "Record the Owner credential/session migration decision"
+    ],
+    doneWhen: "One server-side API can query development PostgreSQL safely."
+  },
+  {
+    dayOffset: 2,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 3,
+    title: "Design owner authentication",
+    items: [
+          "Choose credential/session schema for owner email + password",
+          "identify needed phone OTP and reset records",
+          "Prepare migration proposal and authentication error codes",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Schema change checklist reviewed; no arbitrary auth tables added."
+  },
+  {
+    dayOffset: 3,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 4,
+    title: "Build owner auth vertical slice",
+    items: [
+          "Implement thin owner-auth login/me/logout routes through auth service/repository",
+          "use approved hashed credentials, secure cookies or chosen Auth.js session model",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Good/wrong credentials and logout work for local test owner."
+  },
+  {
+    dayOffset: 4,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 5,
+    title: "Phone OTP and owner status",
+    items: [
+          "Implement development OTP challenge flow if provider is ready",
+          "rate-limit and expire codes",
+          "Apply pending/review/active/suspended policies",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "OTP reuse rejected; suspended owner cannot start new sales."
+  },
+  {
+    dayOffset: 5,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 6,
+    title: "Core API consistency",
+    items: [
+          "Create response wrapper, AppError/handler, Zod validation, request ID and secret-safe logs",
+          "keep src/proxy.ts aligned with Next.js version",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "400/401/403/409/500 are handled consistently."
+  },
+  {
+    dayOffset: 6,
+    week: 1,
+    phase: "Setup and foundation",
+    dayInWeek: 7,
+    title: "First-week smoke tests",
+    items: [
+          "Run login/session/logout/status tests",
+          "review existing bus routes and owner ID sourcing",
+          "document blocker list"
+    ],
+    doneWhen: "No critical broken authentication or configuration flow."
+  },
+  {
+    dayOffset: 7,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 1,
+    title: "Owner onboarding API",
+    items: [
+          "Create pending owner with email/password and normalized phone",
+          "do not allow public request to set approval or verification flags",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Duplicate identity and unsafe role/status fields rejected."
+  },
+  {
+    dayOffset: 8,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 2,
+    title: "Owner phone verification",
+    items: [
+          "Implement send/verify once-at-signup OTP with attempts, expiry, single-use storage",
+          "define phone change re-verification",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Verified phone attached to correct pending owner."
+  },
+  {
+    dayOffset: 9,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 3,
+    title: "Verification documents",
+    items: [
+          "Allow pending owner profile and protected document upload",
+          "under-review responds to admin requests only",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner cannot view or modify another owner documents."
+  },
+  {
+    dayOffset: 10,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 4,
+    title: "Customer registration baseline",
+    items: [
+          "Use existing customers.passwordHash",
+          "validate and hash",
+          "define separate customer sessions/verification only where required",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "New local customer signs in without owner access."
+  },
+  {
+    dayOffset: 11,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 5,
+    title: "Invite primary management user",
+    items: [
+          "Reuse member-owner connection",
+          "create single-use invitation and password setup, not emailed temporary plaintext password",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner cannot invite into another operator."
+  },
+  {
+    dayOffset: 12,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 6,
+    title: "Sub-user invites and permissions",
+    items: [
+          "Primary may invite sub only with permission",
+          "membership-scoped schedules/bookings/manual-booking flags, no financial access",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Wrong membership and expired invite denied."
+  },
+  {
+    dayOffset: 13,
+    week: 2,
+    phase: "Authentication and users",
+    dayInWeek: 7,
+    title: "Account recovery test day",
+    items: [
+          "One-time reset tokens, session invalidation, owner approval tests and verification email/SMS failure handling",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Auth flows pass with local test data and safe errors."
+  },
+  {
+    dayOffset: 14,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 1,
+    title: "Cities and routes reads",
+    items: [
+          "Read existing cities, routes, route_stops and boarding_points, exposing only active public options",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Public dropdowns show real database records."
+  },
+  {
+    dayOffset: 15,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 2,
+    title: "Dated trip search baseline",
+    items: [
+          "Validate origin, destination, departure date",
+          "join schedules -> trips and return only bookable trips",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Search is based on the requested departure date."
+  },
+  {
+    dayOffset: 16,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 3,
+    title: "Owner bus list and create",
+    items: [
+          "Refactor existing /api/v1/owner/buses",
+          "derive ownerId from session and status gate",
+          "validate bus fields",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner A cannot list or create under owner B."
+  },
+  {
+    dayOffset: 17,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 4,
+    title: "Bus detail/edit",
+    items: [
+          "Preserve existing [id] route",
+          "check busId and ownerId",
+          "admin-only transfer process",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Changing URL bus ID does not disclose other owner data."
+  },
+  {
+    dayOffset: 18,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 5,
+    title: "Bus compliance and photos",
+    items: [
+          "Validate protected document upload, permissions and operator visibility",
+          "keep records in existing tables",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Unsupported files and cross-owner updates rejected."
+  },
+  {
+    dayOffset: 19,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 6,
+    title: "Seat layout versioning",
+    items: [
+          "Use bus_layouts and bus_layout_slots, preserve used-layout immutability",
+          "create new layout version when necessary",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Reopen layouts without changing historical trip seats."
+  },
+  {
+    dayOffset: 20,
+    week: 3,
+    phase: "Cities, routes, buses and layouts",
+    dayInWeek: 7,
+    title: "Bus workflow test",
+    items: [
+          "Test normalized duplicate plate rule if migration approved, approval flags, active layout and mixed owner accounts",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Owner CRUD/layout/ownership and constraint tests pass."
+  },
+  {
+    dayOffset: 21,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 1,
+    title: "Create schedule and trip",
+    items: [
+          "POST /api/v1/owner/schedules",
+          "check active owner, approved bus, route/time/fare",
+          "generate dated trip and trip_seats from layout",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Each dated trip has correct sellable seat inventory."
+  },
+  {
+    dayOffset: 22,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 2,
+    title: "List/filter/detail",
+    items: [
+          "Return owner-only schedules/trips, route/date/status filters",
+          "availability counted from trip_seats",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No cross-operator rows; count matches PostgreSQL."
+  },
+  {
+    dayOffset: 23,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 3,
+    title: "Repeat trips",
+    items: [
+          "Create dated trips for daily/weekly repeat request",
+          "use schedule_repeat_groups as defined, skip duplicates in one transaction",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Correct dates and unique trip seat inventories."
+  },
+  {
+    dayOffset: 24,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 4,
+    title: "Schedule conflict detection",
+    items: [
+          "Detect same bus overlapping departures on a date, including edits",
+          "block per approved rule",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No time clashes silently committed."
+  },
+  {
+    dayOffset: 25,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 5,
+    title: "Update time and crew",
+    items: [
+          "Authorize future trip changes",
+          "verify assigned crew and bus belong to operator",
+          "record trip_status_changes",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Affected passengers enumerated for SMS."
+  },
+  {
+    dayOffset: 26,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 6,
+    title: "Cancel trip safely",
+    items: [
+          "Stop sale, apply owner/admin case rule for existing bookings",
+          "start PayHere original-method refund or recorded operator cash refund",
+          "No wallet",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Booked and unbooked cases leave valid final states."
+  },
+  {
+    dayOffset: 27,
+    week: 4,
+    phase: "Schedules and dated trips",
+    dayInWeek: 7,
+    title: "Passenger manifest PDF",
+    items: [
+          "Owner-only per-trip PDF with permitted passenger/seat/boarding fields",
+          "omit unnecessary PII",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Unauthorized owner denied; zero and many passengers render."
+  },
+  {
+    dayOffset: 28,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 1,
+    title: "Atomic seat hold",
+    items: [
+          "POST /api/v1/seats/hold checks trip and seat",
+          "DB conditional update wins for one holder only",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Concurrent clients cannot both acquire one seat."
+  },
+  {
+    dayOffset: 29,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 2,
+    title: "Hold extension once",
+    items: [
+          "After PayHere redirect step, allow a single extension up to 15 minutes total",
+          "record extension usage in approved schema",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Second extension and invalid holder denied."
+  },
+  {
+    dayOffset: 30,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 3,
+    title: "Release hold",
+    items: [
+          "Release only the holder or authorized cleanup",
+          "confirmed bookings are never released by hold endpoint",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Repeat release is safe."
+  },
+  {
+    dayOffset: 31,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 4,
+    title: "Expiry cleanup",
+    items: [
+          "Cron handles expiresAt <= database now",
+          "expire related pending_payment record coherently before seat becomes sellable",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No active pending booking blocks reclaimed seat."
+  },
+  {
+    dayOffset: 32,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 5,
+    title: "Seat-map read API",
+    items: [
+          "GET /api/v1/trips/[tripId]/seats",
+          "return current safe status and treat expired hold accurately",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Opening map returns correct authoritative state."
+  },
+  {
+    dayOffset: 33,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 6,
+    title: "Polling UI integration",
+    items: [
+          "Poll while seat map visible",
+          "slow/stop in background",
+          "refetch after local hold/release",
+          "no Pusher"
+    ],
+    doneWhen: "Two tabs converge without refresh."
+  },
+  {
+    dayOffset: 34,
+    week: 5,
+    phase: "Seat holding and polling",
+    dayInWeek: 7,
+    title: "Race and recovery tests",
+    items: [
+          "Test simultaneous holds, expiry, payment redirect, disconnected tab, cron rerun and late callbacks",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Only one valid active claimant per trip seat."
+  },
+  {
+    dayOffset: 35,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 1,
+    title: "Pending booking endpoint",
+    items: [
+          "POST /api/v1/bookings with frozen price/policy and owner/actor provenance",
+          "request idempotency key",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "One request cannot create duplicate pending bookings."
+  },
+  {
+    dayOffset: 36,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 2,
+    title: "Payment attempt and gateway",
+    items: [
+          "Record gateway payment attempt with booking, amount, currency, status",
+          "generate PayHere request server-side",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Secret never reaches browser."
+  },
+  {
+    dayOffset: 37,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 3,
+    title: "Verified webhook",
+    items: [
+          "Verify PayHere server callback, amount, currency, booking and provider reference",
+          "store deduped webhook event",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Invalid, mismatched and duplicate callbacks safe."
+  },
+  {
+    dayOffset: 38,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 4,
+    title: "Confirmation and ledger",
+    items: [
+          "In one DB transaction confirm booking/seat, record balanced ledger entries and payout liability",
+          "notify after commit",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "One financial posting per successful attempt."
+  },
+  {
+    dayOffset: 39,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 5,
+    title: "Late-payment and reconciliation",
+    items: [
+          "If hold expired and seat reallocated, record exception and initiate verified refund-to-source",
+          "compare gateway records daily",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No late paid booking steals another seat."
+  },
+  {
+    dayOffset: 40,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 6,
+    title: "Booking details and cancellation",
+    items: [
+          "Customer-only list/detail",
+          "snapshot policy for eligibility",
+          "admin handles PayHere refund",
+          "counter cash refund recorded"
+    ],
+    doneWhen: "No wallet credit; actual method and state visible."
+  },
+  {
+    dayOffset: 41,
+    week: 6,
+    phase: "Payments and booking confirmation",
+    dayInWeek: 7,
+    title: "Ticket and payment tests",
+    items: [
+          "PDF/QR ticket authorized",
+          "test success/failure/duplicate/partial refund feasibility in merchant sandbox",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "No critical mismatch among ticket, seat, payment, ledger."
+  },
+  {
+    dayOffset: 42,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 1,
+    title: "Owner earnings summary",
+    items: [
+          "GET /api/v1/owner/earnings uses paid eligible bookings and ledger/settlement states by trip",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Amounts match audited fixtures."
+  },
+  {
+    dayOffset: 43,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 2,
+    title: "Payout breakdown",
+    items: [
+          "GET /api/v1/owner/payouts",
+          "group pending, held, paid with ownerId restrictions",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner A never views Owner B payments."
+  },
+  {
+    dayOffset: 44,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 3,
+    title: "Management list and invite UI",
+    items: [
+          "Complete owner/primary invitation screens and single-use activation already designed in Week 2",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Member only sees own operator membership."
+  },
+  {
+    dayOffset: 45,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 4,
+    title: "Permissions and assignment",
+    items: [
+          "Enforce operator-scoped flags",
+          "deactivate member and revoke sessions",
+          "crew-to-bus same-owner checks",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Wrong membership cannot create manual booking."
+  },
+  {
+    dayOffset: 46,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 5,
+    title: "Company and bank settings",
+    items: [
+          "Update profile",
+          "bank-change requests require re-auth/admin approval",
+          "mask bank details",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Previous active bank history preserved."
+  },
+  {
+    dayOffset: 47,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 6,
+    title: "Policy and notifications",
+    items: [
+          "Owner edits allowed cancellation and alert settings",
+          "snapshots of past bookings remain unchanged",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Existing booking refund terms not overwritten."
+  },
+  {
+    dayOffset: 48,
+    week: 7,
+    phase: "Owner earnings, management and settings",
+    dayInWeek: 7,
+    title: "Manual counter booking",
+    items: [
+          "Authorized owner/manager creates cash booking",
+          "LKR 100 platform fee per approved breakdown",
+          "no fake PayHere attempt"
+    ],
+    doneWhen: "Cash receivable and seat ledger entry match booking total."
+  },
+  {
+    dayOffset: 49,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 1,
+    title: "Owner review queue",
+    items: [
+          "Paginated /api/v1/admin/owners with pending, review, active, suspended and rejected states",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Admin authentication/permission required."
+  },
+  {
+    dayOffset: 50,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 2,
+    title: "Owner approval actions",
+    items: [
+          "Approve/reject/suspend and record audit",
+          "explicitly decide existing-booking action per affected trip",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Suspension never silently cancels unrelated travel."
+  },
+  {
+    dayOffset: 51,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 3,
+    title: "Bus verification",
+    items: [
+          "Review compliance docs/layout",
+          "approve or return for correction",
+          "only eligible buses show in search",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner cannot approve own bus."
+  },
+  {
+    dayOffset: 52,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 4,
+    title: "Financial release flow",
+    items: [
+          "List settlement batches, payout references and ledger evidence",
+          "approve/withhold with reason",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No double payout on retry."
+  },
+  {
+    dayOffset: 53,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 5,
+    title: "Refund and disputes queue",
+    items: [
+          "Review PayHere-to-source and cash operator refunds with proofs",
+          "audit each decision",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Operator/customer get only permitted refund status."
+  },
+  {
+    dayOffset: 54,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 6,
+    title: "Reports and support",
+    items: [
+          "List/assign/reply reports and owner verification queries, preserving history",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Staff cannot read unrelated private material."
+  },
+  {
+    dayOffset: 55,
+    week: 8,
+    phase: "Admin owner and financial APIs",
+    dayInWeek: 7,
+    title: "Admin analytics test",
+    items: [
+          "Bookings/day, routes, reconciled revenue and held liability",
+          "date filtering and pagination",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Numbers match sample financial journal."
+  },
+  {
+    dayOffset: 56,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 1,
+    title: "Management schedule reads",
+    items: [
+          "Primary/sub-user can view only membership-linked operator schedules and permitted routes",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Role alone never grants cross-owner access."
+  },
+  {
+    dayOffset: 57,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 2,
+    title: "Management manual booking",
+    items: [
+          "Allow with explicit manual_booking flag",
+          "reuse atomic seat and cash accounting path",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Cannot skip fee, authorizations or ledger."
+  },
+  {
+    dayOffset: 58,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 3,
+    title: "Transfer initiation",
+    items: [
+          "Define transfer code/token life cycle, ownership and confirmed-booking eligibility",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Token is one-time and short-lived."
+  },
+  {
+    dayOffset: 59,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 4,
+    title: "Transfer accept/expiry",
+    items: [
+          "Accept/decline safely and expire after policy-defined period",
+          "record provenance and notifications",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Double acceptance and stale token denied."
+  },
+  {
+    dayOffset: 60,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 5,
+    title: "Post-trip review create",
+    items: [
+          "Allow eligible passengers after travel, validate rating and owner reply boundaries",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No arbitrary review of untraveled trip."
+  },
+  {
+    dayOffset: 61,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 6,
+    title: "Review reads and rating",
+    items: [
+          "Bus/owner rating from permitted reviews",
+          "return public fields only",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Moderation state respected."
+  },
+  {
+    dayOffset: 62,
+    week: 9,
+    phase: "Management, transfers, reviews, notifications",
+    dayInWeek: 7,
+    title: "Notification verification",
+    items: [
+          "SMS OTP/booking/refund/trip changes",
+          "email receipts/approval/payout",
+          "polling for seat map"
+    ],
+    doneWhen: "Retries do not generate duplicate sends."
+  },
+  {
+    dayOffset: 63,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 1,
+    title: "API checklist",
+    items: [
+          "List routes and test success, 400, 401, 403, 404, 409 and 500",
+          "request IDs",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Failures never leak credentials or stack traces."
+  },
+  {
+    dayOffset: 64,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 2,
+    title: "Ownership/IDOR tests",
+    items: [
+          "Owner, manager, admin, customer and cross-operator access to bookings, buses and bank data",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Every wrong actor denied."
+  },
+  {
+    dayOffset: 65,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 3,
+    title: "PayHere sandbox cases",
+    items: [
+          "Verify valid, failed, duplicate, late, mismatched amount, refund and unsupported partial refund case",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No duplicate journal posting."
+  },
+  {
+    dayOffset: 66,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 4,
+    title: "Seat/load tests",
+    items: [
+          "Race acquisition, cron replay, lazy expiry, time change and cancellation",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "One final valid trip seat state."
+  },
+  {
+    dayOffset: 67,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 5,
+    title: "Frontend owner integration",
+    items: [
+          "Remove owner mock data screen by screen",
+          "test real loading, empty and error states",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Owner UI uses actual API contracts."
+  },
+  {
+    dayOffset: 68,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 6,
+    title: "Customer/admin integration",
+    items: [
+          "Connect booking confirmation, payouts, admin approval, refund status and notifications",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "One shared source of truth."
+  },
+  {
+    dayOffset: 69,
+    week: 10,
+    phase: "Security, concurrency and end-to-end testing",
+    dayInWeek: 7,
+    title: "Full journey / go-no-go",
+    items: [
+          "Run owner signup -> approval -> bus -> trip -> search -> hold -> pay -> ticket -> refund",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "All critical checks pass or launch blocked."
+  },
+  {
+    dayOffset: 70,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 1,
+    title: "Repo and CI",
+    items: [
+          "Protect main, add tests/build pipeline and deployment review",
+          "do not commit secret files",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Clean CI and reproducible build."
+  },
+  {
+    dayOffset: 71,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 2,
+    title: "Production DB provision",
+    items: [
+          "Create isolated managed PostgreSQL, backups and restricted credentials",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No dev/prod data mixing."
+  },
+  {
+    dayOffset: 72,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 3,
+    title: "Migration deployment rehearsal",
+    items: [
+          "Restore sample/staging backup and run committed migrations using deploy workflow",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Constraints/functions/triggers retained."
+  },
+  {
+    dayOffset: 73,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 4,
+    title: "Production secrets",
+    items: [
+          "Configure hosting environment with DB, session, OTP, SMS/email, PayHere and cron keys",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Secrets only on server."
+  },
+  {
+    dayOffset: 74,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 5,
+    title: "Provider callbacks and jobs",
+    items: [
+          "Set correct production webhook URL, verify callback, polling, refund and reconciliation jobs",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Duplicate deliveries safe."
+  },
+  {
+    dayOffset: 75,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 6,
+    title: "Staging security test",
+    items: [
+          "Test actual HTTPS, owner states, cron authorization and payment flow from Sri Lanka mobile network",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No critical public-data exposure."
+  },
+  {
+    dayOffset: 76,
+    week: 11,
+    phase: "Production readiness and deployment",
+    dayInWeek: 7,
+    title: "Operational runbook",
+    items: [
+          "Practice restore, reconciliation incident, delayed callback, operator suspension and rollback",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Named response and recovery procedure."
+  },
+  {
+    dayOffset: 77,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 1,
+    title: "First operator preparation",
+    items: [
+          "Prepare company, phone verification, owner approval, approved fleet, routes and valid dated trips",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "All artifacts match production DB."
+  },
+  {
+    dayOffset: 78,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 2,
+    title: "Operator walkthrough",
+    items: [
+          "Supervised owner/management actions, bus edit, manual booking, payout view and access checks",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Only own data visible."
+  },
+  {
+    dayOffset: 79,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 3,
+    title: "Controlled real-money pilot",
+    items: [
+          "With permission and oversight, verify PayHere payment, booking, seat, ledger, ticket and SMS",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Real money fully reconciled."
+  },
+  {
+    dayOffset: 80,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 4,
+    title: "Original-method refund pilot",
+    items: [
+          "Test supported online refund and recorded counter refund with agreed policy",
+          "validate owner/admin visibility",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "Refund outcome equals journal."
+  },
+  {
+    dayOffset: 81,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 5,
+    title: "Incident correction",
+    items: [
+          "Resolve production-only bugs",
+          "run critical flow again after fixes",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No unresolved critical issue."
+  },
+  {
+    dayOffset: 82,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 6,
+    title: "Small operator cohort",
+    items: [
+          "Onboard 2-3 approved operators",
+          "verify independent permissions and seat states",
+          "Test normal, invalid and unauthorized access cases",
+          "Record blockers and commit the working change"
+    ],
+    doneWhen: "No cross-operator leakage."
+  },
+  {
+    dayOffset: 83,
+    week: 12,
+    phase: "Operator onboarding and conditional soft launch",
+    dayInWeek: 7,
+    title: "Launch readiness gate",
+    items: [
+          "Review backups, owner rules, seat races, payments, refunds, reconciliation, security and operator support",
+          "Test normal, invalid and unauthorized access cases"
+    ],
+    doneWhen: "Launch only if gates pass; date may move."
+  },
 ];
 
 export function createPlan(startDate: string = DEFAULT_PLAN_START): PlanDay[] {
@@ -1316,15 +1196,28 @@ export type TaskDetail = {
 };
 
 const PHASE_WHY_MAP: Record<string, string> = {
+  'Setup and foundation': 'Foundational infrastructure required before building auth, bus models, and payment flows.',
+  'Authentication and users': 'Required before owner and customer endpoints can be authorized and scoped.',
+  'Cities, routes, buses and layouts': 'Required for route search and schedule seat inventory creation.',
+  'Schedules and dated trips': 'Prerequisite for seat holding, price calculations, and booking reservations.',
+  'Seat holding and polling': 'Critical for preventing concurrent double-bookings via atomic Redis holds and polling.',
+  'Payments and booking confirmation': 'Core revenue transaction engine; connects seat allocation to PayHere payment and confirmation notifications.',
+  'Owner earnings, management and settings': 'Required for bus operator self-service management, fleet allocation, and bank payout tracking.',
+  'Admin owner and financial APIs': 'Required for platform governance, owner verification, commission monitoring, and audit security.',
+  'Management, transfers, reviews, notifications': 'Ensures customer booking management, seat transfers, verified reviews, and transactional notifications.',
+  'Security, concurrency and end-to-end testing': 'Validates system under high concurrent ticket rush traffic and enforces OWASP defenses.',
+  'Production readiness and deployment': 'Hardens platform with environment secrets, SSL, CDN caching, and database backup.',
+  'Operator onboarding and conditional soft launch': 'Final rollout with real fleet operators and monitoring before full public release.',
+  // Legacy aliases
   'Setup & Foundation': 'Foundational infrastructure required before building auth, bus models, and payment flows.',
   'Authentication & Users': 'Required before owner and customer endpoints can be authorized and scoped.',
   'Cities, Routes & Buses': 'Required for route search and schedule seat inventory creation.',
-  'Schedules': 'Prerequisite for atomic seat locking and booking reservations.',
-  'Seat Locking & Realtime': 'Critical for preventing concurrent double-bookings before payment flow is connected.',
-  'Payments & Bookings': 'Core revenue transaction engine; connects seat allocation to PayHere and wallet ledger.',
-  'Owner Operations': 'Required for bus operator self-service management, fleet allocation, and payout accounting.',
+  'Schedules': 'Prerequisite for seat holding, price calculations, and booking reservations.',
+  'Seat Locking & Realtime': 'Critical for preventing concurrent double-bookings via atomic Redis holds and polling.',
+  'Payments & Bookings': 'Core revenue transaction engine; connects seat allocation to PayHere payment.',
+  'Owner Operations': 'Required for bus operator self-service management, fleet allocation, and bank payout tracking.',
   'Admin APIs': 'Required for platform governance, owner verification, and audit security.',
-  'Mobile API Polish': 'Ensures high-speed, reliable payloads and push notifications for mobile apps.',
+  'Mobile API Polish': 'Ensures high-speed, reliable payloads and notifications.',
   'Production Deployment': 'Hardens platform with environment secrets, SSL, CDN caching, and database backup.',
   'Security & Load Testing': 'Validates system under high concurrent ticket rush traffic and enforces OWASP defenses.',
   'Pilot & Soft Launch': 'Final rollout with real fleet operators and monitoring before full public release.',

@@ -13,7 +13,7 @@ export function getPhaseMeta(week: number): PhaseMeta {
     case 1:
       return {
         icon: <DatabaseIcon />,
-        label: 'Setup & Foundation',
+        label: 'Setup and foundation',
         color: '#2563EB',
         badgeBg: 'rgba(37, 99, 235, 0.12)',
         tag: 'INFRA',
@@ -21,91 +21,91 @@ export function getPhaseMeta(week: number): PhaseMeta {
     case 2:
       return {
         icon: <ShieldIcon />,
-        label: 'Auth & Multi-Tenancy',
+        label: 'Authentication and users',
         color: '#0284C7',
         badgeBg: 'rgba(2, 132, 199, 0.12)',
-        tag: 'SECURITY',
+        tag: 'AUTH',
       };
     case 3:
       return {
         icon: <GridIcon />,
-        label: 'Bus & Seat Inventory',
+        label: 'Cities, routes, buses and layouts',
         color: '#0D9488',
         badgeBg: 'rgba(13, 148, 136, 0.12)',
-        tag: 'INVENTORY',
+        tag: 'FLEET',
       };
     case 4:
       return {
         icon: <ZapIcon />,
-        label: 'Booking Engine & Locks',
+        label: 'Schedules and dated trips',
         color: '#10B981',
         badgeBg: 'rgba(16, 185, 129, 0.12)',
-        tag: 'CONCURRENCY',
+        tag: 'TRIPS',
       };
     case 5:
       return {
+        icon: <ClockIcon />,
+        label: 'Seat holding and polling',
+        color: '#3B82F6',
+        badgeBg: 'rgba(59, 130, 246, 0.12)',
+        tag: 'SEATS',
+      };
+    case 6:
+      return {
         icon: <CreditCardIcon />,
-        label: 'Payment Gateways',
+        label: 'Payments and booking confirmation',
         color: '#F43F5E',
         badgeBg: 'rgba(244, 63, 94, 0.12)',
         tag: 'PAYMENTS',
       };
-    case 6:
-      return {
-        icon: <QrCodeIcon />,
-        label: 'Ticket Issuing & QR',
-        color: '#E11D48',
-        badgeBg: 'rgba(225, 29, 72, 0.12)',
-        tag: 'DISPATCH',
-      };
     case 7:
       return {
         icon: <BarChartIcon />,
-        label: 'Operator Dashboard',
+        label: 'Owner earnings, management and settings',
         color: '#F59E0B',
         badgeBg: 'rgba(245, 158, 11, 0.12)',
-        tag: 'FLEET',
+        tag: 'FINANCE',
       };
     case 8:
       return {
-        icon: <SearchIcon />,
-        label: 'Search & Redis Caching',
-        color: '#3B82F6',
-        badgeBg: 'rgba(59, 130, 246, 0.12)',
-        tag: 'SEARCH',
+        icon: <ShieldIcon />,
+        label: 'Admin owner and financial APIs',
+        color: '#8B5CF6',
+        badgeBg: 'rgba(139, 92, 246, 0.12)',
+        tag: 'ADMIN',
       };
     case 9:
       return {
-        icon: <ClockIcon />,
-        label: 'Background Jobs & Cron',
+        icon: <SearchIcon />,
+        label: 'Management, transfers, reviews, notifications',
         color: '#14B8A6',
         badgeBg: 'rgba(20, 184, 166, 0.12)',
-        tag: 'QUEUES',
+        tag: 'OPS',
       };
     case 10:
       return {
-        icon: <GaugeIcon />,
-        label: 'Load Testing & Indexing',
-        color: '#E11D48',
-        badgeBg: 'rgba(225, 29, 72, 0.12)',
-        tag: 'PERFORMANCE',
+        icon: <LockIcon />,
+        label: 'Security, concurrency and end-to-end testing',
+        color: '#EF4444',
+        badgeBg: 'rgba(239, 68, 68, 0.12)',
+        tag: 'TESTING',
       };
     case 11:
       return {
-        icon: <LockIcon />,
-        label: 'Security Audit & OWASP',
-        color: '#EF4444',
-        badgeBg: 'rgba(239, 68, 68, 0.12)',
-        tag: 'AUDIT',
+        icon: <GaugeIcon />,
+        label: 'Production readiness and deployment',
+        color: '#0EA5E9',
+        badgeBg: 'rgba(14, 165, 233, 0.12)',
+        tag: 'STAGING',
       };
     case 12:
     default:
       return {
         icon: <RocketIcon />,
-        label: 'Production & CI/CD',
+        label: 'Operator onboarding and conditional soft launch',
         color: '#10B981',
         badgeBg: 'rgba(16, 185, 129, 0.12)',
-        tag: 'RELEASE',
+        tag: 'LAUNCH',
       };
   }
 }
