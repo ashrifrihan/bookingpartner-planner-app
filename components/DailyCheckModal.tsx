@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { PlanDay } from '@/lib/plan';
 import type { TaskReason, TaskStatusReason, EndOfDayLog } from '@/lib/storage';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, CloseIcon, CheckIcon } from '@/lib/visuals';
 
 const REASON_OPTIONS: { id: TaskStatusReason; label: string }[] = [
   { id: 'not_started', label: 'Not started' },
@@ -119,7 +119,7 @@ export function DailyCheckModal({
                       checked={done}
                       onChange={() => onToggleTask(todayDate, idx)}
                     />
-                    <span className="fake-check">{done ? '✓' : ''}</span>
+                    <span className="fake-check">{done ? <CheckIcon size={14} /> : ''}</span>
                     <span className="task-name-label">{item}</span>
                     <span className="task-status-pill">{done ? 'Completed' : 'Pending'}</span>
                   </label>

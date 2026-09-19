@@ -27,7 +27,7 @@ import { DeveloperMemorySection } from './DeveloperMemory';
 import { AiPurposeAssistant } from './AiPurposeAssistant';
 import { WhatsAppReportModal } from './WhatsAppReportModal';
 import { DriftDetectorModal, WeeklyRetroModal, SparkleIcon } from './AiAssistant';
-import { ArrowRightIcon, getTaskChip } from '@/lib/visuals';
+import { ArrowRightIcon, getTaskChip, CloseIcon } from '@/lib/visuals';
 
 function localDateString(value = new Date()): string {
   const y = value.getFullYear();
@@ -468,7 +468,7 @@ function DashboardContent() {
       {message && (
         <div className="notice">
           <span>{message}</span>
-          <button type="button" onClick={() => setMessage('')}>✕</button>
+          <button type="button" onClick={() => setMessage('')}><CloseIcon size={14} /></button>
         </div>
       )}
 

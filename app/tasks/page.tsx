@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { usePlanner } from '@/context/PlannerContext';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, CloseIcon } from '@/lib/visuals';
 
 export default function TasksPage() {
   const {

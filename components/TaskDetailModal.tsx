@@ -5,6 +5,7 @@ import type { PlanDay } from '@/lib/plan';
 import { getTaskDetail } from '@/lib/plan';
 import { requestPlanAssist } from '@/lib/ai';
 import { renderInlineMarkdown } from './AiAssistant';
+import { CloseIcon, CheckIcon } from '@/lib/visuals';
 
 export function TaskDetailModal({
   isOpen,
@@ -87,7 +88,7 @@ export function TaskDetailModal({
               onClick={onToggleComplete}
               aria-label={isCompleted ? 'Mark as pending' : 'Mark as complete'}
             >
-              {isCompleted ? '✓ Completed' : 'Mark Complete'}
+              {isCompleted ? <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Completed</> : 'Mark Complete'}
             </button>
             <button type="button" className="drawer-close-btn" onClick={onClose} aria-label="Close task details">
               ✕
@@ -241,7 +242,7 @@ export function TaskDetailModal({
               onClose();
             }}
           >
-            {isCompleted ? 'Mark Pending' : '✓ Mark Done & Close'}
+            {isCompleted ? 'Mark Pending' : <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Mark Done & Close</>}
           </button>
         </div>
       </div>

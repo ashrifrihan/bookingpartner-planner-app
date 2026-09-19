@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { usePlanner } from '@/context/PlannerContext';
 import { requestPlanAssist, type AiAssistType } from '@/lib/ai';
 import { renderInlineMarkdown } from '@/components/AiAssistant';
+import { IdeaIcon, CheckIcon, NotebookIcon, TargetCrosshairIcon, BarChartIcon, ClockIcon, ShieldIcon, AlertOctagonIcon } from '@/lib/visuals';
 
 type PurposeAction = {
   type: AiAssistType;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   description: string;
 };
 
@@ -16,37 +17,37 @@ const PURPOSE_ACTIONS: PurposeAction[] = [
   {
     type: 'make-today-plan',
     label: "Make Today's Plan",
-    icon: '📋',
+    icon: <NotebookIcon size={14} />,
     description: "Synthesize today's focus, carryovers, and memory rules into a prioritized checklist.",
   },
   {
     type: 'what-did-i-miss',
     label: 'What Did I Miss?',
-    icon: '⏮',
+    icon: <TargetCrosshairIcon size={14} />,
     description: "Inspect missed or unfinished tasks from previous days and why they matter.",
   },
   {
     type: 'check-progress',
     label: 'Check Progress',
-    icon: '📈',
+    icon: <BarChartIcon size={14} />,
     description: 'Evaluate delivery velocity, overdue items, and launch date risk.',
   },
   {
     type: 'replan',
     label: 'Replan',
-    icon: '🔄',
+    icon: <ClockIcon size={14} />,
     description: 'Adjust sequence and scope when tasks get delayed without breaking dependencies.',
   },
   {
     type: 'solve-blocker',
     label: 'Solve Blocker',
-    icon: '🛡',
+    icon: <ShieldIcon size={14} />,
     description: 'Practical technical workarounds, stubs, and unblocking strategies.',
   },
   {
     type: 'explain-task',
     label: 'Explain Architecture',
-    icon: '💡',
+    icon: <IdeaIcon size={14} />,
     description: 'Deep-dive into architecture, purpose, and implementation steps of a task.',
   },
 ];
@@ -155,8 +156,8 @@ export default function AiPage() {
 
         <p style={{ margin: 0, fontSize: '12.5px', color: 'var(--ink-secondary)', lineHeight: 1.4 }}>
           {yesterdayIncompleteTasks.length > 0
-            ? `⚠️ ${yesterdayIncompleteTasks.length} task unfinished from yesterday.`
-            : '✓ Yesterday completed cleanly. Roadmap on track.'}
+            ? <><AlertOctagonIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> {yesterdayIncompleteTasks.length} task unfinished from yesterday.</>
+            : <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Yesterday completed cleanly. Roadmap on track.</>}
           {blocked[today] && ` Blocker: ${blocked[today]}`}
         </p>
       </div>
@@ -250,7 +251,7 @@ export default function AiPage() {
               onClick={handleCopy}
               style={{ fontSize: '11.5px', padding: '4px 10px' }}
             >
-              {copied ? '✓ Copied' : 'Copy'}
+              {copied ? <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Copied</> : 'Copy'}
             </button>
           </div>
 

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePlanner, formatDate, itemKey } from '@/context/PlannerContext';
 import { MorningGreetingBanner } from '@/components/DailyCheckModal';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, CloseIcon } from '@/lib/visuals';
 
 export default function HomePage() {
   const {

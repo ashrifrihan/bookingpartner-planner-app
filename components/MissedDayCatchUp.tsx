@@ -5,6 +5,7 @@ import type { MissedDaySummary } from '@/lib/plan';
 import type { TaskAction } from '@/lib/storage';
 import { requestPlanAssist } from '@/lib/ai';
 import { renderInlineMarkdown } from './AiAssistant';
+import { CloseIcon, CheckIcon } from '@/lib/visuals';
 
 export function MissedDayCatchUpModal({
   isOpen,
@@ -117,7 +118,7 @@ export function MissedDayCatchUpModal({
                           checked={checked}
                           onChange={() => onToggleTask(missedDay.date, t.index)}
                         />
-                        <span className="fake-check">{checked ? '✓' : ''}</span>
+                        <span className="fake-check">{checked ? <CheckIcon size={14} /> : ''}</span>
                         <span className="catchup-task-text">{t.item}</span>
                       </label>
 
@@ -221,7 +222,7 @@ export function MissedDayCatchUpModal({
               {missedDay.completedTasks.length > 0 ? (
                 <ul className="info-list">
                   {missedDay.completedTasks.map((item, idx) => (
-                    <li key={idx}>✓ {item}</li>
+                    <li key={idx}><CheckIcon size={12} style={{marginRight: 4, display: 'inline-block'}}/> {item}</li>
                   ))}
                 </ul>
               ) : (

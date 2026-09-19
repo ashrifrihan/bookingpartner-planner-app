@@ -11,6 +11,7 @@ import {
   NotebookIcon,
   AlertOctagonIcon,
   ArrowRightIcon,
+  CheckIcon,
 } from '@/lib/visuals';
 import { BlockerSuggestionWidget } from './AiAssistant';
 
@@ -117,7 +118,7 @@ export function DayCard({
                     checked={checked}
                     onChange={() => onToggle(day, index)}
                   />
-                  <span className="fake-check">{checked ? '✓' : ''}</span>
+                  <span className="fake-check">{checked ? <CheckIcon size={14} /> : ''}</span>
                 </label>
                 <span className={`task-chip chip-${chip.type}`}>{chip.label}</span>
                 <span
@@ -164,7 +165,7 @@ export function DayCard({
                   <NotebookIcon />
                   <span>Developer Log</span>
                 </div>
-                {notes[day.date] && <span className="autosave-tag">✓ Saved</span>}
+                {notes[day.date] && <span className="autosave-tag"><CheckIcon size={12} style={{marginRight: 4, display: 'inline-block'}}/> Saved</span>}
               </div>
               <textarea
                 value={notes[day.date] || ''}

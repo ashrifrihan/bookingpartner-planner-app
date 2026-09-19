@@ -139,9 +139,9 @@ export function getTaskChip(text: string): TaskChip {
 }
 
 // Crisp Vector Icons for Engineering Domains
-export function DatabaseIcon() {
+export function DatabaseIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M3 5V19A9 3 0 0 0 21 19V5" />
       <path d="M3 12A9 3 0 0 0 21 12" />
@@ -149,17 +149,17 @@ export function DatabaseIcon() {
   );
 }
 
-export function ShieldIcon() {
+export function ShieldIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
   );
 }
 
-export function GridIcon() {
+export function GridIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="7" height="7" x="3" y="3" rx="1" />
       <rect width="7" height="7" x="14" y="3" rx="1" />
       <rect width="7" height="7" x="14" y="14" rx="1" />
@@ -168,26 +168,26 @@ export function GridIcon() {
   );
 }
 
-export function ZapIcon() {
+export function ZapIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
   );
 }
 
-export function CreditCardIcon() {
+export function CreditCardIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="20" height="14" x="2" y="5" rx="2" />
       <line x1="2" x2="22" y1="10" y2="10" />
     </svg>
   );
 }
 
-export function QrCodeIcon() {
+export function QrCodeIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="5" height="5" x="3" y="3" rx="1" />
       <rect width="5" height="5" x="16" y="3" rx="1" />
       <rect width="5" height="5" x="3" y="16" rx="1" />
@@ -204,9 +204,9 @@ export function QrCodeIcon() {
   );
 }
 
-export function BarChartIcon() {
+export function BarChartIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="12" x2="12" y1="20" y2="10" />
       <line x1="18" x2="18" y1="20" y2="4" />
       <line x1="6" x2="6" y1="20" y2="16" />
@@ -214,45 +214,45 @@ export function BarChartIcon() {
   );
 }
 
-export function SearchIcon() {
+export function SearchIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="11" cy="11" r="8" />
       <path d="m21 21-4.3-4.3" />
     </svg>
   );
 }
 
-export function ClockIcon() {
+export function ClockIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }
 
-export function GaugeIcon() {
+export function GaugeIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="m12 14 4-4" />
       <path d="M3.34 19a10 10 0 1 1 17.32 0" />
     </svg>
   );
 }
 
-export function LockIcon() {
+export function LockIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
     </svg>
   );
 }
 
-export function RocketIcon() {
+export function RocketIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
       <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
       <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
@@ -261,9 +261,9 @@ export function RocketIcon() {
   );
 }
 
-export function TargetCrosshairIcon() {
+export function TargetCrosshairIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <circle cx="12" cy="12" r="6" />
       <circle cx="12" cy="12" r="2" />
@@ -271,9 +271,9 @@ export function TargetCrosshairIcon() {
   );
 }
 
-export function NotebookIcon() {
+export function NotebookIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 6h4" />
       <path d="M2 10h4" />
       <path d="M2 14h4" />
@@ -284,9 +284,9 @@ export function NotebookIcon() {
   );
 }
 
-export function AlertOctagonIcon() {
+export function AlertOctagonIcon({ size = 13, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
       <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
       <line x1="12" x2="12" y1="8" y2="12" />
       <line x1="12" x2="12.01" y1="16" y2="16" />
@@ -294,9 +294,9 @@ export function AlertOctagonIcon() {
   );
 }
 
-export function CheckCircleIcon() {
+export function CheckCircleIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties } = {}) {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
       <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
@@ -323,5 +323,29 @@ export function ArrowRightIcon({ size = 13, className }: { size?: number; classN
   );
 }
 
+export function CheckIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
 
+export function CloseIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+      <line x1="18" x2="6" y1="6" y2="18" />
+      <line x1="6" x2="18" y1="6" y2="18" />
+    </svg>
+  );
+}
 
+export function IdeaIcon({ size = 15, className, style }: { size?: number; className?: string; style?: React.CSSProperties }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className} style={style}>
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.2 1.5 1.5 2.5" />
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+    </svg>
+  );
+}

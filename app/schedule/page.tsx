@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePlanner, formatDate, itemKey } from '@/context/PlannerContext';
 import { plan } from '@/lib/plan';
-import { getPhaseMeta, ArrowRightIcon } from '@/lib/visuals';
+import { getPhaseMeta, ArrowRightIcon, CheckIcon } from '@/lib/visuals';
 
 export default function SchedulePage() {
   const {
@@ -155,7 +155,7 @@ export default function SchedulePage() {
                               border: '1px solid var(--line-strong)',
                             }}
                           >
-                            {isDayDone ? '✓' : `D${day.dayOffset + 1}`}
+                            {isDayDone ? <CheckIcon size={14} /> : `D${day.dayOffset + 1}`}
                           </div>
 
                           <div className="ios-card-title-col">

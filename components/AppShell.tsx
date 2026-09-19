@@ -12,7 +12,7 @@ import { MissedDayCatchUpModal } from './MissedDayCatchUp';
 import { DailyCheckModal } from './DailyCheckModal';
 import { WhatsAppReportModal } from './WhatsAppReportModal';
 import { DriftDetectorModal, WeeklyRetroModal } from './AiAssistant';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, CloseIcon } from '@/lib/visuals';
 
 export function AppShell({ children }: { children: ReactNode }) {
   const {
@@ -110,7 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         {message && (
           <div className="notice">
             <span>{message}</span>
-            <button type="button" onClick={() => setMessage('')}>✕</button>
+            <button type="button" onClick={() => setMessage('')}><CloseIcon size={14} /></button>
           </div>
         )}
 

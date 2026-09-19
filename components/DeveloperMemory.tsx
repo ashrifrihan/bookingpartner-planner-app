@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { DeveloperMemoryItem, MemoryCategory } from '@/lib/storage';
+import { CloseIcon } from '@/lib/visuals';
 
 const CATEGORY_TABS: { id: 'all' | MemoryCategory; label: string }[] = [
   { id: 'all', label: 'All Notes' },

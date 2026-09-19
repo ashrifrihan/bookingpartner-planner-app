@@ -6,7 +6,7 @@ import {
   formatSlackReport,
   type WhatsAppReportData,
 } from '@/lib/plan';
-import { ArrowRightIcon } from '@/lib/visuals';
+import { ArrowRightIcon, CloseIcon, CheckIcon } from '@/lib/visuals';
 
 export function WhatsAppReportModal({
   isOpen,
@@ -155,7 +155,7 @@ export function WhatsAppReportModal({
                   <ul className="standup-task-items">
                     {data.completedTasks.map((task, idx) => (
                       <li key={idx} className="standup-task-row done">
-                        <span className="task-check-circle">✓</span>
+                        <span className="task-check-circle"><CheckIcon size={14} /></span>
                         <span className="task-text">{task}</span>
                       </li>
                     ))}
@@ -264,7 +264,7 @@ export function WhatsAppReportModal({
               onClick={() => handleCopy(formattedSlack, 'slack')}
               title="Copy formatted with Slack markdown (*bold* and quotes)"
             >
-              {copiedTarget === 'slack' ? '✓ Copied for Slack' : 'Copy for Slack'}
+              {copiedTarget === 'slack' ? <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Copied for Slack</> : 'Copy for Slack'}
             </button>
 
             <button
@@ -273,7 +273,7 @@ export function WhatsAppReportModal({
               onClick={() => handleCopy(formattedWhatsApp, 'whatsapp')}
               title="Copy formatted for WhatsApp"
             >
-              {copiedTarget === 'whatsapp' ? '✓ Copied to Clipboard' : 'Copy for WhatsApp'}
+              {copiedTarget === 'whatsapp' ? <><CheckIcon size={14} style={{marginRight: 4, display: 'inline-block'}}/> Copied to Clipboard</> : 'Copy for WhatsApp'}
             </button>
           </div>
         </div>

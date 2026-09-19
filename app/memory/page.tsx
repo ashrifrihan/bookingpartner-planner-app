@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { usePlanner } from '@/context/PlannerContext';
 import type { MemoryCategory } from '@/lib/storage';
+import { CloseIcon } from '@/lib/visuals';
 
 export default function MemoryPage() {
   const { memoryNotes, addMemoryNote, deleteMemoryNote } = usePlanner();
@@ -54,7 +55,7 @@ export default function MemoryPage() {
             onClick={() => setShowAddForm((prev) => !prev)}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
           >
-            <span>{showAddForm ? '✕ Cancel' : '+ Add Note'}</span>
+            <span>{showAddForm ? <><CloseIcon size={12} style={{marginRight: 4, display: 'inline-block'}}/> Cancel</> : '+ Add Note'}</span>
           </button>
         </div>
       </div>
