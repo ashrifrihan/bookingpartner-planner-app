@@ -47,17 +47,17 @@ export default function TasksPage() {
       <div className="ios-page-header">
         <div className="ios-header-left">
           <div className="ios-title-row">
-            <h1 className="ios-page-title">Tasks Directory</h1>
+            <h1 className="ios-page-title">Tasks</h1>
             <span className="ios-count-badge">
               {directoryCounts.completed} of {directoryCounts.total} Done
             </span>
           </div>
           <p className="ios-page-subtitle">
-            Search, filter, and inspect all {directoryCounts.total} sprint deliverables
+            All 84 sprint deliverables. Search, filter, and inspect.
           </p>
         </div>
         <div className="ios-header-right">
-          <span className="ios-date-badge">Sprint: 84 Days</span>
+          <span className="ios-date-badge">84 Days</span>
         </div>
       </div>
 
@@ -132,7 +132,7 @@ export default function TasksPage() {
         </button>
       </div>
 
-      {/* Phase Filter Row (scrollable horizontal pills) */}
+      {/* Phase Filter Row */}
       <div className="directory-phase-pills-row">
         <button
           type="button"
@@ -180,7 +180,7 @@ export default function TasksPage() {
         )}
       </div>
 
-      {/* Individual Task Cards */}
+      {/* Individual Task Cards (matching media_1789766927628.png) */}
       <div className="ios-task-list">
         {filteredDirectoryTasks.slice(0, directoryLimit).map((task) => (
           <div className={`ios-task-card ${task.isDone ? 'done' : ''}`} key={task.key}>
@@ -201,45 +201,51 @@ export default function TasksPage() {
               <div className="ios-card-title-col">
                 <h3 className="ios-task-title">{task.title}</h3>
                 <div className="ios-task-meta-row">
-                  <span className={`ios-chip ${task.chip.type}`}>{task.chip.label}</span>
+                  <span>{task.day.phase}</span>
                   <span className="ios-meta-dot">•</span>
-                  <span className="ios-task-step">{task.day.phase} · Day {task.dayNum}</span>
+                  <span>Day {task.dayNum} of 84</span>
                 </div>
               </div>
 
-              <div className="ios-card-index-badge">{task.formattedDate}</div>
+              <div className="ios-card-index-badge">#{task.itemIndex + 1}</div>
             </div>
 
             <div className="ios-card-divider" />
 
             <div className="ios-card-bottom-row">
-              <div className="ios-status-indicator">
-                {task.isDone ? (
-                  <span className="ios-status-pill completed">
-                    <span className="status-dot" />
-                    Completed
-                  </span>
-                ) : task.isOverdue ? (
-                  <span className="ios-status-pill overdue">
-                    <span className="status-dot" />
-                    Overdue
-                  </span>
-                ) : (
-                  <span className="ios-status-pill pending">
-                    <span className="status-dot" />
-                    Pending
-                  </span>
-                )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className={`ios-chip ${task.chip.type}`}>{task.chip.label}</span>
+                <div className="ios-status-indicator">
+                  {task.isDone ? (
+                    <span className="ios-status-pill completed">
+                      <span className="status-dot" />
+                      Completed
+                    </span>
+                  ) : task.isOverdue ? (
+                    <span className="ios-status-pill overdue">
+                      <span className="status-dot" />
+                      Overdue
+                    </span>
+                  ) : (
+                    <span className="ios-status-pill pending">
+                      <span className="status-dot" />
+                      Pending
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <button
-                type="button"
-                className="ios-card-details-btn"
-                onClick={() => setInspectTask({ day: task.day, itemIndex: task.itemIndex })}
-              >
-                <span>Details</span>
-                <ArrowRightIcon size={12} />
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '11.5px', color: 'var(--ink-muted)' }}>{task.formattedDate}</span>
+                <button
+                  type="button"
+                  className="ios-card-details-btn"
+                  onClick={() => setInspectTask({ day: task.day, itemIndex: task.itemIndex })}
+                >
+                  <span>Details</span>
+                  <ArrowRightIcon size={12} />
+                </button>
+              </div>
             </div>
           </div>
         ))}

@@ -4,9 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePlanner, formatDate, itemKey } from '@/context/PlannerContext';
 import { MorningGreetingBanner } from '@/components/DailyCheckModal';
-import { KpiSection } from '@/components/KpiSection';
 import { ArrowRightIcon } from '@/lib/visuals';
-import { PLAN_START, PLAN_END } from '@/lib/plan';
 
 export default function HomePage() {
   const {
@@ -19,10 +17,11 @@ export default function HomePage() {
     endOfDayLogs,
     todayTasks,
     todayCompletedCount,
-    states,
     toggleItem,
     setInspectTask,
     setActiveCatchUpDay,
+    setWhatsappModalOpen,
+    setEodModalOpen,
     memoryNotes,
     overallPercent,
     completedCount,
@@ -34,13 +33,6 @@ export default function HomePage() {
     activeWeekKeys,
     activeWeekPercent,
     activeWeekDays,
-    weekBarsData,
-    daysRemaining,
-    sparklineData,
-    syncing,
-    user,
-    loadCloud,
-    installApp,
   } = usePlanner();
 
   const [todayTaskSearch, setTodayTaskSearch] = useState('');
@@ -62,6 +54,9 @@ export default function HomePage() {
   }, [todayTasks, todayTaskFilter, todayTaskSearch]);
 
   const sprintDayNum = todayPlan ? todayPlan.dayOffset + 1 : 1;
+  const todayProgressPercent = todayTasks.length
+    ? Math.round((todayCompletedCount / todayTasks.length) * 100)
+    : 0;
 
   return (
     <div className="home-dashboard-view">
@@ -97,7 +92,7 @@ export default function HomePage() {
         onOpenCatchUp={() => setActiveCatchUpDay(yesterdayMissed)}
       />
 
-      {/* iOS-Style Clean Page Header */}
+      {/* iOS-Style Clean Page Header (matching reference design) */}
       <div className="ios-page-header">
         <div className="ios-header-left">
           <div className="ios-title-row">
@@ -115,7 +110,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Search Bar with Magnifying Glass & Clear */}
+      {/* Clean Search Bar */}
       <div className="ios-search-bar">
         <svg className="ios-search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 19l-4.35-4.35M17 9A8 8 0 1 1 1 9a8 8 0 0 1 16 0z" />
@@ -139,7 +134,7 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Filter Segmented Control (Pills) */}
+      {/* Filter Segmented Control Pills */}
       <div className="ios-filter-pills-row">
         <button
           type="button"
@@ -164,18 +159,52 @@ export default function HomePage() {
         </button>
       </div>
 
-      {/* Deliverable Focus Header */}
+      {/* Today's Primary Deliverable Card (matching media_1789769731356.png) */}
       {todayPlan && (
-        <div className="ios-deliverable-banner">
-          <span className="ios-deliverable-kicker">TODAY&apos;S PRIMARY DELIVERABLE</span>
-          <h2 className="ios-deliverable-title">{todayPlan.title}</h2>
-          <p className="ios-deliverable-done-when">
-            <strong>Target:</strong> {todayPlan.doneWhen}
+        <div className="ios-deliverable-card">
+          <div className="ios-deliverable-top">
+            <div>
+              <span className="ios-deliverable-kicker">TODAY&apos;S PRIMARY DELIVERABLE</span>
+              <h2 className="ios-deliverable-title">{todayPlan.title}</h2>
+            </div>
+            <div className="ios-progress-percent">{todayProgressPercent}%</div>
+          </div>
+
+          <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'var(--ink-secondary)', lineHeight: 1.45 }}>
+            <strong style={{ color: 'var(--ink-primary)' }}>Done when:</strong> {todayPlan.doneWhen}
           </p>
+
+          <div className="ios-progress-track">
+            <div className="ios-progress-fill" style={{ width: `${todayProgressPercent}%` }} />
+          </div>
+
+          <div className="ios-deliverable-actions">
+            <button
+              type="button"
+              className="ios-mini-action-btn primary"
+              onClick={() => setWhatsappModalOpen(true)}
+            >
+              Standup Report
+            </button>
+            <button
+              type="button"
+              className="ios-mini-action-btn"
+              onClick={() => setEodModalOpen(true)}
+            >
+              End Day Review
+            </button>
+            <Link
+              href="/memory"
+              className="ios-mini-action-btn"
+              style={{ textDecoration: 'none' }}
+            >
+              Memory ({memoryNotes.length})
+            </Link>
+          </div>
         </div>
       )}
 
-      {/* Today's Tasks Cards */}
+      {/* Today's Tasks Cards (matching media_1789766927628.png) */}
       <div className="ios-task-list">
         {filteredTodayTasks.map((task) => (
           <div className={`ios-task-card ${task.isDone ? 'done' : ''}`} key={task.key}>
@@ -280,51 +309,57 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Developer Memory Snapshot */}
-      <div className="ios-memory-preview-card">
-        <div className="ios-memory-head">
+      {/* Mobile-First Roadmap Summary Card */}
+      <div className="ios-deliverable-card" style={{ marginTop: '4px' }}>
+        <div className="ios-deliverable-top">
           <div>
-            <span className="ios-deliverable-kicker">DEVELOPER MEMORY</span>
-            <strong>Rules &amp; Decisions ({memoryNotes.length})</strong>
+            <span className="ios-deliverable-kicker">12-WEEK ROADMAP STATUS</span>
+            <h2 className="ios-deliverable-title">Sprint Overview</h2>
           </div>
-          <Link href="/memory" className="ios-card-details-btn" style={{ textDecoration: 'none' }}>
-            <span>Manage</span>
+          <div className="ios-progress-percent">{overallPercent}%</div>
+        </div>
+
+        <p style={{ margin: '0 0 10px', fontSize: '13px', color: 'var(--ink-muted)' }}>
+          Week {activeWeekNumber} of 12 · {completedCount} of {totalCount} total deliverables completed
+        </p>
+
+        <div className="ios-progress-track" style={{ marginBottom: '16px' }}>
+          <div className="ios-progress-fill" style={{ width: `${overallPercent}%` }} />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ background: 'var(--surface-sunken)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '11px', color: 'var(--ink-muted)', display: 'block' }}>Week Progress</span>
+            <strong style={{ fontSize: '16px', color: 'var(--ink-primary)' }}>{activeWeekPercent}%</strong>
+          </div>
+          <div style={{ background: 'var(--surface-sunken)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '11px', color: 'var(--ink-muted)', display: 'block' }}>Days Done</span>
+            <strong style={{ fontSize: '16px', color: 'var(--green-emerald)' }}>{completedDaysCount}/84</strong>
+          </div>
+          <div style={{ background: 'var(--surface-sunken)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
+            <span style={{ fontSize: '11px', color: 'var(--ink-muted)', display: 'block' }}>Overdue</span>
+            <strong style={{ fontSize: '16px', color: overdueCount > 0 ? 'var(--red-accent)' : 'var(--ink-secondary)' }}>{overdueCount}</strong>
+          </div>
+        </div>
+
+        <div className="ios-deliverable-actions">
+          <Link
+            href="/schedule"
+            className="ios-mini-action-btn primary"
+            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            <span>Full Schedule (84 Days)</span>
+            <ArrowRightIcon size={11} />
+          </Link>
+          <Link
+            href="/tasks"
+            className="ios-mini-action-btn"
+            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            <span>All Tasks Directory</span>
             <ArrowRightIcon size={11} />
           </Link>
         </div>
-        <div className="ios-memory-list">
-          {memoryNotes.slice(0, 3).map((note) => (
-            <div key={note.id} className="ios-memory-row">
-              <span className={`ios-memory-tag ${note.category}`}>{note.category}</span>
-              <span className="ios-memory-text">{note.text}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Full KPI Section (Finnova Overview) */}
-      <div className="desktop-kpi-wrap" style={{ marginTop: '28px' }}>
-        <KpiSection
-          overallPercent={overallPercent}
-          completedCount={completedCount}
-          totalCount={totalCount}
-          completedDaysCount={completedDaysCount}
-          overdueCount={overdueCount}
-          activeWeekNumber={activeWeekNumber}
-          activeWeekDone={activeWeekDone}
-          activeWeekTotal={activeWeekKeys.length}
-          activeWeekPercent={activeWeekPercent}
-          activeWeekPhase={activeWeekDays[0]?.phase || 'Foundation'}
-          weekBarsData={weekBarsData}
-          daysRemaining={daysRemaining}
-          planStart={formatDate(PLAN_START)}
-          planEnd={formatDate(PLAN_END)}
-          sparklineData={sparklineData}
-          syncing={syncing}
-          user={user}
-          onSyncCloud={loadCloud}
-          onInstallApp={installApp}
-        />
       </div>
     </div>
   );
