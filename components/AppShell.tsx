@@ -91,29 +91,29 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell-root">
-      {/* Top Navigation Bar with Quick Actions */}
-      <TopBar
-        activeWeekNumber={activeWeekNumber}
-        online={online}
-        theme={theme}
-        toggleTheme={toggleTheme}
-        user={user}
-        onSignOut={() => supabase?.auth.signOut()}
-        onOpenEndOfDay={() => setEodModalOpen(true)}
-        onOpenWhatsApp={() => setWhatsappModalOpen(true)}
-        overdueCount={overdueCount}
-      />
-
-      {/* Synchronizing Feedback Notice */}
-      {message && (
-        <div className="notice">
-          <span>{message}</span>
-          <button type="button" onClick={() => setMessage('')}>✕</button>
-        </div>
-      )}
-
       {/* Page Content */}
       <main className="app-shell">
+        {/* Top Navigation Bar with Quick Actions */}
+        <TopBar
+          activeWeekNumber={activeWeekNumber}
+          online={online}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          user={user}
+          onSignOut={() => supabase?.auth.signOut()}
+          onOpenEndOfDay={() => setEodModalOpen(true)}
+          onOpenWhatsApp={() => setWhatsappModalOpen(true)}
+          overdueCount={overdueCount}
+        />
+
+        {/* Synchronizing Feedback Notice */}
+        {message && (
+          <div className="notice">
+            <span>{message}</span>
+            <button type="button" onClick={() => setMessage('')}>✕</button>
+          </div>
+        )}
+
         {children}
       </main>
 

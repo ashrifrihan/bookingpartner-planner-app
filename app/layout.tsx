@@ -8,7 +8,6 @@ export const metadata: Metadata = {
   title: 'BookingPartner Backend Planner',
   description: '12-week backend development planner for BookingPartner.lk',
   applicationName: 'BookingPartner Planner',
-  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -24,10 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#0b0c11' },
-    { media: '(prefers-color-scheme: light)', color: '#f4f6fb' },
-  ],
+  themeColor: '#000000',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
